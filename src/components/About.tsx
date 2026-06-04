@@ -8,6 +8,7 @@ const ISOMETRIC_IMAGE = "/src/assets/images/network_isometric_1780518523273.png"
 export default function About() {
   const [contact, setContact] = useState(() => dataStore.getContactInfo());
   const [about, setAbout] = useState(() => dataStore.getAboutConfig());
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -15,8 +16,16 @@ export default function About() {
       setAbout(dataStore.getAboutConfig());
     };
     window.addEventListener("datastore-update", handleUpdate);
+
+    // Responsive media query for desktop screen width
+    const media = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(media.matches);
+    const listener = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    media.addEventListener("change", listener);
+
     return () => {
       window.removeEventListener("datastore-update", handleUpdate);
+      media.removeEventListener("change", listener);
     };
   }, []);
 
@@ -37,9 +46,10 @@ export default function About() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* Left Side: Meticulously Positioned Overlapping Image Collage */}
+          {/* DESKTOP VIEW ONLY (perfect alignment as before, completely restored) */}
           <div 
             style={{ marginBottom: "-95px" }}
-            className="lg:col-span-5 relative flex justify-center lg:justify-start pt-6 pb-12 sm:pb-16 lg:py-0 mb-[-95px]"
+            className="hidden lg:col-span-12 xl:col-span-5 lg:col-span-5 lg:relative lg:flex lg:justify-start lg:py-0 lg:mb-[-95px] z-10"
           >
             {/* Dots Pattern Accent */}
             <div className="absolute -top-4 -left-4 w-32 h-32 bg-[radial-gradient(#e2e8f0_2px,transparent_2px)] [background-size:12px_12px] opacity-70 z-0" />
@@ -65,6 +75,39 @@ export default function About() {
                 className="w-full h-full object-cover rounded-[20px] filter brightness-95 saturate-[1.10]"
                 referrerPolicy="no-referrer"
               />
+            </div>
+          </div>
+
+          {/* MOBILE & TABLET VIEW ONLY (centered, relative, no overlap with text underneath) */}
+          <div 
+            className="col-span-1 block lg:hidden relative flex justify-center pt-6 pb-16 z-10"
+          >
+            {/* Dots Pattern Accent */}
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 -ml-36 w-32 h-32 bg-[radial-gradient(#e2e8f0_2px,transparent_2px)] [background-size:12px_12px] opacity-70 z-0" />
+            
+            {/* Wrapper matching the base image size to anchor them together perfectly */}
+            <div className="relative w-72 h-80 sm:w-80 sm:h-96 flex-shrink-0">
+              {/* Base Image */}
+              <div className="w-full h-full rounded-[32px] overflow-hidden shadow-[0_20px_50px_-12px_rgba(15,23,42,0.15)] border-none relative z-10">
+                <img
+                  src={about.image1 || INSTALLER_IMAGE}
+                  alt="Security Installation"
+                  className="w-full h-full object-cover filter brightness-[0.98] contrast-[1.01]"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              
+              {/* Overlapping Image positioned over the bottom right of base image */}
+              <div 
+                className="absolute -bottom-8 -right-4 w-44 h-44 sm:w-52 sm:h-52 rounded-[24px] overflow-hidden shadow-[0_20px_45px_-8px_rgba(79,70,229,0.25)] border-none flex bg-indigo-950 p-0.5 z-20"
+              >
+                <img
+                  src={about.image2 || ISOMETRIC_IMAGE}
+                  alt="Networking Systems"
+                  className="w-full h-full object-cover rounded-[18px] filter brightness-95 saturate-[1.10]"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
             </div>
           </div>
 
@@ -154,8 +197,8 @@ export default function About() {
               {/* More About Us anchor action button */}
               <button 
                 onClick={handleScrollToContact}
-                style={{ width: "180px", marginRight: "230px" }}
-                className="px-6 py-4 bg-indigo-950 hover:bg-indigo-900 text-white font-extrabold text-[13px] rounded-full flex items-center justify-center gap-2.5 shadow-lg shadow-indigo-950/20 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group w-[180px] mr-[230px]"
+                style={isDesktop ? { width: "180px", marginRight: "230px" } : { width: "180px", marginRight: "0px" }}
+                className={`px-6 py-4 bg-indigo-950 hover:bg-indigo-900 text-white font-extrabold text-[13px] rounded-full flex items-center justify-center gap-2.5 shadow-lg shadow-indigo-950/20 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group w-[180px] ${isDesktop ? 'mr-[230px]' : 'mr-0'}`}
               >
                 More About Us
                 <span className="bg-white/10 p-1 rounded-full group-hover:translate-x-1 transition-transform duration-300">

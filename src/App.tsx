@@ -65,12 +65,9 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
-      const isMobileOrTablet = typeof window !== "undefined" && window.innerWidth < 1024;
 
       const performScroll = (options: ScrollToOptions) => {
-        if (!isMobileOrTablet) {
-          window.scrollTo(options);
-        }
+        window.scrollTo(options);
       };
 
       if (hash === "#admin") {
@@ -141,7 +138,7 @@ export default function App() {
           setTimeout(() => {
             const id = hash.replace("#", "");
             const element = document.getElementById(id);
-            if (element && !isMobileOrTablet) {
+            if (element) {
               element.scrollIntoView({ behavior: "smooth" });
             }
           }, 150);
@@ -160,6 +157,8 @@ export default function App() {
 
   useEffect(() => {
     setLoadTrigger((prev) => prev + 1);
+    // Keep desktop and mobile experience flawless by instantly scrolling to the top on page transition
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [currentPage]);
 
   if (currentPage === "admin") {
