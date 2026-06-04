@@ -28,7 +28,7 @@ export default function About() {
   };
 
   return (
-    <section id="about" className="py-24 bg-[#ffffff] relative overflow-hidden">
+    <section id="about" style={{ paddingBottom: "170px" }} className="pt-24 pb-[170px] bg-[#ffffff] relative overflow-hidden">
       {/* Subtle Background Accent */}
       <div className="absolute top-1/4 left-0 w-80 h-80 bg-indigo-50/40 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-0 w-96 h-96 bg-slate-50 rounded-full blur-3xl pointer-events-none" />
@@ -37,7 +37,10 @@ export default function About() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* Left Side: Meticulously Positioned Overlapping Image Collage */}
-          <div className="lg:col-span-5 relative flex justify-center lg:justify-start pt-6 pb-12 sm:pb-16 lg:py-0">
+          <div 
+            style={{ marginBottom: "-95px" }}
+            className="lg:col-span-5 relative flex justify-center lg:justify-start pt-6 pb-12 sm:pb-16 lg:py-0 mb-[-95px]"
+          >
             {/* Dots Pattern Accent */}
             <div className="absolute -top-4 -left-4 w-32 h-32 bg-[radial-gradient(#e2e8f0_2px,transparent_2px)] [background-size:12px_12px] opacity-70 z-0" />
             
@@ -52,7 +55,10 @@ export default function About() {
             </div>
             
             {/* Overlapping Image (Isometric Network Server Rack) positioned front-right with NO border */}
-            <div className="absolute -bottom-6 -right-2 sm:right-6 lg:-right-6 w-56 h-56 sm:w-64 sm:h-64 rounded-[28px] overflow-hidden shadow-[0_30px_70px_-10px_rgba(79,70,229,0.22)] border-none transform hover:scale-[1.03] transition-all duration-500 z-20 flex bg-indigo-950 p-0.5">
+            <div 
+              style={{ bottom: "71px", marginRight: "90px", marginBottom: "-230px" }}
+              className="absolute -right-2 sm:right-6 lg:-right-6 w-56 h-56 sm:w-64 sm:h-64 rounded-[28px] overflow-hidden shadow-[0_30px_70px_-10px_rgba(79,70,229,0.22)] border-none transform hover:scale-[1.03] transition-all duration-500 z-20 flex bg-indigo-950 p-0.5 mr-[90px] mb-[-230px]"
+            >
               <img
                 src={about.image2 || ISOMETRIC_IMAGE}
                 alt="Networking Systems"
@@ -148,7 +154,8 @@ export default function About() {
               {/* More About Us anchor action button */}
               <button 
                 onClick={handleScrollToContact}
-                className="px-6 py-4 bg-indigo-950 hover:bg-indigo-900 text-white font-extrabold text-[13px] rounded-full flex items-center justify-center gap-2.5 shadow-lg shadow-indigo-950/20 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
+                style={{ width: "180px", marginRight: "230px" }}
+                className="px-6 py-4 bg-indigo-950 hover:bg-indigo-900 text-white font-extrabold text-[13px] rounded-full flex items-center justify-center gap-2.5 shadow-lg shadow-indigo-950/20 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group w-[180px] mr-[230px]"
               >
                 More About Us
                 <span className="bg-white/10 p-1 rounded-full group-hover:translate-x-1 transition-transform duration-300">
