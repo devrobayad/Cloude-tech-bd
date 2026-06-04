@@ -254,10 +254,6 @@ export default function Footer() {
             <a href="#privacy-policy" className="hover:text-indigo-400 transition-colors">Privacy Policy</a>
             <span>•</span>
             <a href="#terms-of-use" className="hover:text-indigo-400 transition-colors">Terms of Use</a>
-            <span>•</span>
-            <a href="#admin" className="hover:text-indigo-400 transition-colors bg-indigo-950/20 hover:bg-indigo-950/50 border border-indigo-900/40 text-indigo-400 flex items-center gap-1 px-2.5 py-1 rounded-md text-[10.5px] font-bold font-sans">
-              Admin Portal
-            </a>
           </div>
         </div>
       </div>
