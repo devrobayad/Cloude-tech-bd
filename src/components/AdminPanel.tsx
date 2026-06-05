@@ -7614,6 +7614,29 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json; charset=UTF-8");
 
+// Prevent PHP from displaying HTML errors that corrupt JSON responses
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// Convert all warnings & notices into clean JSON error objects
+set_error_handler(function(\$severity, \$message, \$file, \$line) {
+    if (!(error_reporting() & \$severity)) return;
+    echo json_encode([
+        "status" => "error",
+        "message" => "PHP Error [\$severity]: \$message in \$file on line \$line"
+    ]);
+    exit;
+});
+
+// Convert all uncaught exceptions into clean JSON error objects
+set_exception_handler(function(\$exception) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "PHP Uncaught Exception: " . \$exception->getMessage() . " in " . \$exception->getFile() . " on line " . \$exception->getLine()
+    ]);
+    exit;
+});
+
 if (\$_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
@@ -7624,13 +7647,20 @@ if (\$_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 \$db_user = "${mysqlConfig.dbUser || "ctl_user"}";
 \$db_pass = "${mysqlConfig.dbPass || ""}";
 
-// Load securely auto-saved database configuration if present on server
+// Load securely auto-saved database configuration if present on server with self-healing block
 if (file_exists(__DIR__ . '/db_config_secured.php')) {
-    include __DIR__ . '/db_config_secured.php';
-    if (isset(\$saved_host)) \$db_host = \$saved_host;
-    if (isset(\$saved_name)) \$db_name = \$saved_name;
-    if (isset(\$saved_user)) \$db_user = \$saved_user;
-    if (isset(\$saved_pass)) \$db_pass = \$saved_pass;
+    try {
+        \$saved_db_config = include __DIR__ . '/db_config_secured.php';
+        if (is_array(\$saved_db_config)) {
+            if (isset(\$saved_db_config['host'])) \$db_host = \$saved_db_config['host'];
+            if (isset(\$saved_db_config['name'])) \$db_name = \$saved_db_config['name'];
+            if (isset(\$saved_db_config['user'])) \$db_user = \$saved_db_config['user'];
+            if (isset(\$saved_db_config['pass'])) \$db_pass = \$saved_db_config['pass'];
+        }
+    } catch (Throwable \$t) {
+        // Automatically self-heal: Delete corrupt file if a syntax/parse error occurs
+        @unlink(__DIR__ . '/db_config_secured.php');
+    }
 }
 
 \$inputJSON = file_get_contents('php://input');
@@ -7649,6 +7679,104 @@ if (isset(\$input['dbConfig'])) {
     \$db_pass = \$input['dbConfig']['pass'];
 }
 
+\$use_file_storage = (\$db_host === 'file_storage' || empty(\$db_host) || \$db_host === 'sqlite');
+
+if (\$use_file_storage) {
+    define('JSON_DB_FILE', __DIR__ . '/db_data_secured.json');
+    
+    if (\$action === 'test') {
+        \$test_write = @file_put_contents(JSON_DB_FILE, json_encode(["test" => true], JSON_UNESCAPED_UNICODE));
+        if (\$test_write === false) {
+             echo json_encode(["status" => "error", "message" => "File storage is not writable. Please check folder permissions of public_html/."]);
+        } else {
+             echo json_encode(["status" => "success", "message" => "Connection to cPanel Local File Storage succeeded! Script is writing safely without MySQL."]);
+        }
+        exit;
+    }
+    
+    if (\$action === 'initialize') {
+        if (!file_exists(JSON_DB_FILE)) {
+             @file_put_contents(JSON_DB_FILE, json_encode(["ctl_inquiries" => []], JSON_UNESCAPED_UNICODE));
+        }
+        echo json_encode(["status" => "success", "message" => "Local File Storage Database Schema initialized inside db_data_secured.json!"]);
+        exit;
+    }
+    
+    if (\$action === 'pull_all') {
+        if (file_exists(JSON_DB_FILE)) {
+            \$raw_file_content = file_get_contents(JSON_DB_FILE);
+            \$data = json_decode(\$raw_file_content, true);
+            if (!is_array(\$data)) \$data = [];
+            echo json_encode(["status" => "success", "data" => \$data], JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode(["status" => "success", "data" => []]);
+        }
+        exit;
+    }
+    
+    if (\$action === 'push_all') {
+        if (!isset(\$input['data'])) {
+            echo json_encode(["status" => "error", "message" => "No bundle database payload detected."]);
+            exit;
+        }
+        \$payload = \$input['data'];
+        \$write_res = @file_put_contents(JSON_DB_FILE, json_encode(\$payload, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        if (\$write_res === false) {
+             echo json_encode(["status" => "error", "message" => "Failed writing data backup directly on cPanel server file. Check directory writing permission."]);
+        } else {
+             if (isset(\$input['dbConfig'])) {
+                 \$configCode = "<?php\\n" .
+                               "// Auto-saved by DB Bridge. Do not touch or expose.\\n" .
+                               "return " . var_export([
+                                   'host' => 'file_storage',
+                                   'name' => 'file_storage',
+                                   'user' => 'file_storage',
+                                   'pass' => 'file_storage'
+                               ], true) . ";\\n";
+                 @file_put_contents(__DIR__ . '/db_config_secured.php', \$configCode);
+             }
+             echo json_encode(["status" => "success", "message" => "All frontend records published successfully into cPanel file storage (db_data_secured.json)."]);
+        }
+        exit;
+    }
+    
+    if (\$action === 'save_inquiry') {
+        if (!isset(\$input['inquiry'])) {
+            echo json_encode(["status" => "error", "message" => "No inquiry records submitted."]);
+            exit;
+        }
+        \$inq = \$input['inquiry'];
+        \$data = [];
+        if (file_exists(JSON_DB_FILE)) {
+            \$data = json_decode(file_get_contents(JSON_DB_FILE), true);
+            if (!is_array(\$data)) \$data = [];
+        }
+        if (!isset(\$data['ctl_inquiries']) || !is_array(\$data['ctl_inquiries'])) {
+            \$data['ctl_inquiries'] = [];
+        }
+        
+        \$exists = false;
+        foreach (\$data['ctl_inquiries'] as &\$existing) {
+             if (isset(\$existing['id']) && \$existing['id'] === \$inq['id']) {
+                 \$existing = \$inq;
+                 \$exists = true;
+                 break;
+              }
+        }
+        if (!\$exists) {
+             \$data['ctl_inquiries'][] = \$inq;
+        }
+        
+        \$write_res = @file_put_contents(JSON_DB_FILE, json_encode(\$data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        if (\$write_res === false) {
+             echo json_encode(["status" => "error", "message" => "Failed saving inquiry inside local server storage file."]);
+        } else {
+             echo json_encode(["status" => "success", "message" => "Inquiry saved inside cPanel JSON file storage successfully!"]);
+        }
+        exit;
+    }
+}
+
 try {
     \$conn = new PDO("mysql:host=\$db_host;dbname=\$db_name;charset=utf8mb4", \$db_user, \$db_pass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -7659,10 +7787,12 @@ try {
     if (isset(\$input['dbConfig'])) {
         \$configCode = "<?php\\n" .
                       "// Auto-saved by DB Bridge. Do not touch or expose.\\n" .
-                      "\\\\$saved_host = " . var_export(\$db_host, true) . ";\\n" .
-                      "\\\\$saved_name = " . var_export(\$db_name, true) . ";\\n" .
-                      "\\\\$saved_user = " . var_export(\$db_user, true) . ";\\n" .
-                      "\\\\$saved_pass = " . var_export(\$db_pass, true) . ";\\n";
+                      "return " . var_export([
+                          'host' => \$db_host,
+                          'name' => \$db_name,
+                          'user' => \$db_user,
+                          'pass' => \$db_pass
+                      ], true) . ";\\n";
         @file_put_contents(__DIR__ . '/db_config_secured.php', \$configCode);
     }
 } catch (PDOException \$e) {
