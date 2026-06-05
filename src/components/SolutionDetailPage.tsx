@@ -2067,7 +2067,7 @@ export default function SolutionDetailPage({ solutionId }: SolutionDetailPagePro
           {currentSolution.overview}
         </p>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-sans mt-1">
-          At Cloud Technologies Limited, we don't believe in generic off-the-shelf system packages. We conduct complete engineering evaluations on site acoustics, light, bandwidth, and cabling layouts to tailor the solution specific to your organizational goals. This holistic approach guarantees an installation that functions reliably with high performance.
+          At Cloud Technologies, we don't believe in generic off-the-shelf system packages. We conduct complete engineering evaluations on site acoustics, light, bandwidth, and cabling layouts to tailor the solution specific to your organizational goals. This holistic approach guarantees an installation that functions reliably with high performance.
         </p>
       </div>
 

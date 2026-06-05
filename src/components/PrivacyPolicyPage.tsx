@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
     {
       icon: UserCheck,
       title: "4. Sharing & Disclosure",
-      content: "Cloud Technologies Limited does not sell or rent our client or visitor databases to third-party brokers. We only share information with certified sub-contractors, system vendors (e.g., Cisco, Hikvision, Dahua) when strictly required to initialize product warranties or resolve complex technical SLA support tickets."
+      content: "Cloud Technologies does not sell or rent our client or visitor databases to third-party brokers. We only share information with certified sub-contractors, system vendors (e.g., Cisco, Hikvision, Dahua) when strictly required to initialize product warranties or resolve complex technical SLA support tickets."
     },
     {
       icon: RefreshCw,
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-xl font-bold text-[#1e1b4b]">Our Dedication to Privacy</h2>
           </div>
           <p className="text-slate-650 text-sm md:text-base leading-relaxed">
-            At <strong>Cloud Technologies Limited</strong>, we value the trust you place in our brand when choosing us to secure and connect your business. This Privacy Policy outlines the types of information we collect, how we safely store and handle it, and the rigorous steps we take to protect your data across our physical and digital services.
+            At <strong>Cloud Technologies</strong>, we value the trust you place in our brand when choosing us to secure and connect your business. This Privacy Policy outlines the types of information we collect, how we safely store and handle it, and the rigorous steps we take to protect your data across our physical and digital services.
           </p>
           <div className="mt-4 pt-4 border-t border-slate-200/60 flex flex-wrap gap-4 text-xs font-semibold text-slate-500">
             <span>Effective Date: June 1, 2026</span>

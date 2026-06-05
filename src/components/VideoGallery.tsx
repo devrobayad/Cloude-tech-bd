@@ -19,7 +19,7 @@ interface VideoItem {
 const videoItems: VideoItem[] = [
   {
     id: 1,
-    title: "Cloud Technologies Limited: Ultimate Corporate Overview",
+    title: "Cloud Technologies: Ultimate Corporate Overview",
     category: "overview",
     categoryLabel: "Company Overview",
     duration: "4:25",

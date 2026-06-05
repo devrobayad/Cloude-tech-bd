@@ -307,7 +307,7 @@ export default function Contact() {
             allowFullScreen={true}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="Cloud Technologies Limited Registered Office Map"
+            title="Cloud Technologies Registered Office Map"
           ></iframe>
         </div>
 

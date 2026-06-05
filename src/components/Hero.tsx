@@ -108,7 +108,7 @@ export default function Hero() {
               >
                 <a 
                   href="#contact"
-                  className="px-6 py-3.5 bg-indigo-650 hover:bg-indigo-600 hover:scale-105 active:scale-95 text-white text-xs md:text-sm font-bold rounded-full transition-all shadow-xl shadow-indigo-700/20 cursor-pointer"
+                  className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 hover:scale-105 active:scale-95 text-white text-xs md:text-sm font-bold rounded-full transition-all shadow-xl shadow-indigo-700/20 cursor-pointer"
                 >
                   {slides[current].cta}
                 </a>

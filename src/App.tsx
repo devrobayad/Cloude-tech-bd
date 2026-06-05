@@ -62,6 +62,16 @@ export default function App() {
     return () => window.removeEventListener("datastore-update", updateMetadata);
   }, []);
 
+  // Background MySQL auto-synchronization if enabled in admin configuration
+  useEffect(() => {
+    const config = dataStore.getMySQLConfig();
+    if (config.activeDataSource === "mysql_bridge") {
+      dataStore.syncWithMySQL().catch((e) => {
+        console.warn("Automatic backup MySQL sync skipped or connection unestablished.", e);
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;

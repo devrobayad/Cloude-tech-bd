@@ -24,7 +24,7 @@ export default function TermsOfUsePage() {
     },
     {
       title: "2. Scope of Services",
-      desc: "Cloud Technologies Limited supplies premium physical-logical enterprise infrastructure integration. Final performance rates rely on client hardware compatibility and specified SLA tier contracts.",
+      desc: "Cloud Technologies supplies premium physical-logical enterprise infrastructure integration. Final performance rates rely on client hardware compatibility and specified SLA tier contracts.",
       icon: Settings
     },
     {
@@ -34,7 +34,7 @@ export default function TermsOfUsePage() {
     },
     {
       title: "4. Intellectual Property Rights",
-      desc: "All source programs, software code, custom layout engineering templates, CAD drawings, designs, and content published by our team remain the intellectual property of Cloud Technologies Limited.",
+      desc: "All source programs, software code, custom layout engineering templates, CAD drawings, designs, and content published by our team remain the intellectual property of Cloud Technologies.",
       icon: FileText
     },
     {
@@ -58,7 +58,7 @@ export default function TermsOfUsePage() {
             <h2 className="text-xl font-bold text-[#1e1b4b]">General Agreement</h2>
           </div>
           <p className="text-slate-650 text-sm md:text-base leading-relaxed">
-            Welcome to the digital portal of <strong>Cloud Technologies Limited</strong>. By accessing our platform, reviewing our technical resources, ordering hardware components, or using our ongoing IT and active SLA services, you signify your compliance with these comprehensive Terms of Use. Please review them carefully before proceeding with business activities.
+            Welcome to the digital portal of <strong>Cloud Technologies</strong>. By accessing our platform, reviewing our technical resources, ordering hardware components, or using our ongoing IT and active SLA services, you signify your compliance with these comprehensive Terms of Use. Please review them carefully before proceeding with business activities.
           </p>
           <div className="mt-4 pt-4 border-t border-slate-200/60 flex flex-wrap gap-4 text-xs font-semibold text-slate-500">
             <span>Last Updated: June 4, 2026</span>

@@ -9,13 +9,13 @@ import {
   FileText, Briefcase, Image as ImageIcon, Video, LogOut, CheckCircle, 
   Trash2, Plus, Edit2, Save, X, Search, Clock, ExternalLink, RefreshCw, Eye,
   Upload, Users, Award, BarChart2, Sliders, Share2, Link as LinkIcon, HelpCircle,
-  Loader2, Mail, Server, Code, Download, Terminal
+  Loader2, Mail, Server, Code, Download, Terminal, Database
 } from "lucide-react";
 import { 
   dataStore, NewsItem, ProjectItem, PhotoItem, VideoItem, InquiryItem, ContactInfo, DBClient, DBBrand,
   AboutConfig, ChairmanConfig, MDConfig, VisionMissionConfig, TeamMemberConfig, WhyChooseReason, HeroSlide,
   TestimonialItem, StatItem, HeaderConfig, FooterConfig, SocialLink, QuickLink, AdminAuthConfig,
-  NavItemConfig, NavDropdownItem, SubMenuItem, EmailIntegrationConfig
+  NavItemConfig, NavDropdownItem, SubMenuItem, EmailIntegrationConfig, MySQLConfig
 } from "../utils/dataStore";
 import ClientLogoRenderer from "./ClientLogoRenderer";
 import BrandLogoRenderer from "./BrandLogoRenderer";
@@ -34,7 +34,15 @@ export default function AdminPanel() {
   const [adminCredentialsSuccess, setAdminCredentialsSuccess] = useState("");
 
   // Navigation Panel State
-  const [activeTab, setActiveTab] = useState<"dashboard" | "inquiries" | "news" | "running-projects" | "completed-projects" | "photos" | "videos" | "solutions" | "contact-info font-sans" | "contact-info" | "clients" | "brands" | "about-sublinks" | "hero-slider" | "testimonials" | "stats" | "header-footer font-sans" | "header-footer" | "admin-settings" | "email-settings">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "inquiries" | "news" | "running-projects" | "completed-projects" | "photos" | "videos" | "solutions" | "contact-info font-sans" | "contact-info" | "clients" | "brands" | "about-sublinks" | "hero-slider" | "testimonials" | "stats" | "header-footer font-sans" | "header-footer" | "admin-settings" | "email-settings" | "mysql-settings">("dashboard");
+
+  // MySQL Integration States
+  const [mysqlConfig, setMysqlConfig] = useState<MySQLConfig>(() => dataStore.getMySQLConfig());
+  const [saveMySQLSuccess, setSaveMySQLSuccess] = useState("");
+  const [mysqlSyncing, setMysqlSyncing] = useState(false);
+  const [mysqlSyncMsg, setMysqlSyncMsg] = useState("");
+  const [mysqlSyncErr, setMysqlSyncErr] = useState("");
+  const [mysqlTesting, setMysqlTesting] = useState(false);
 
   // Header & Footer Editor State
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(() => dataStore.getHeaderConfig());
@@ -408,6 +416,8 @@ export default function AdminPanel() {
     setTestimonials(dataStore.getTestimonials());
     setDisplayStats(dataStore.getDisplayStats());
     setAdminAuthConfig(dataStore.getAdminAuthConfig());
+    setMysqlConfig(dataStore.getMySQLConfig());
+    setEmailConfig(dataStore.getEmailIntegrationConfig());
   };
 
   const handleSaveContactInfo = (e: React.FormEvent) => {
@@ -1780,6 +1790,18 @@ export default function AdminPanel() {
             <Mail className="w-4 h-4" />
             <span>Email & Webmail</span>
           </button>
+
+          <button
+            onClick={() => { setActiveTab("mysql-settings"); setSearchQuery(""); }}
+            className={`w-full flex items-center gap-2.5 px-4 py-3 rounded-xl font-extrabold text-sm transition-all cursor-pointer ${
+              activeTab === "mysql-settings" 
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10" 
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`}
+          >
+            <Database className="w-4 h-4" />
+            <span>MySQL Databases</span>
+          </button>
         </aside>
 
         {/* Content Panel Box (Col span 9) */}
@@ -3140,7 +3162,7 @@ export default function AdminPanel() {
                         value={contactInfo.companyName}
                         onChange={(e) => setContactInfo({...contactInfo, companyName: e.target.value})}
                         className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 font-bold" 
-                        placeholder="e.g. Cloud Technologies Limited" 
+                        placeholder="e.g. Cloud Technologies" 
                         required 
                       />
                     </div>
@@ -3772,7 +3794,7 @@ export default function AdminPanel() {
                             setIsAddingMember(true);
                             setMemberForm({ name: "", role: "", description: "", image: "" });
                           }}
-                          className="bg-indigo-600 hover:bg-indigo-550 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1 cursor-pointer transition-all shadow-md shadow-indigo-650/10"
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1 cursor-pointer transition-all shadow-md shadow-indigo-600/10"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Add Team Member</span>
@@ -3869,7 +3891,7 @@ export default function AdminPanel() {
                           </button>
                           <button
                             type="submit"
-                            className="bg-indigo-650 hover:bg-indigo-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-600/20"
                           >
                             <Save className="w-3.5 h-3.5" />
                             <span>Save Officer Profile</span>
@@ -3896,7 +3918,7 @@ export default function AdminPanel() {
                                 setMemberForm(member);
                                 setIsAddingMember(false);
                               }}
-                              className="p-2 text-slate-500 hover:text-indigo-650 hover:bg-slate-50 rounded-lg border border-slate-100"
+                              className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-50 rounded-lg border border-slate-100"
                               title="Edit"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -3929,7 +3951,7 @@ export default function AdminPanel() {
                             setIsAddingReason(true);
                             setReasonForm({ title: "", desc: "" });
                           }}
-                          className="bg-indigo-600 hover:bg-indigo-550 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1 cursor-pointer transition-all shadow-md shadow-indigo-650/10"
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1 cursor-pointer transition-all shadow-md shadow-indigo-600/10"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Add New Reason</span>
@@ -3983,7 +4005,7 @@ export default function AdminPanel() {
                           </button>
                           <button
                             type="submit"
-                            className="bg-indigo-650 hover:bg-indigo-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-600/20"
                           >
                             <Save className="w-3.5 h-3.5" />
                             <span>Save Highlight</span>
@@ -4177,7 +4199,7 @@ export default function AdminPanel() {
                       </button>
                       <button
                         type="submit"
-                        className="bg-indigo-650 hover:bg-indigo-600 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-indigo-650/10 cursor-pointer"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer transition-all"
                       >
                         <Save className="w-3.5 h-3.5" />
                         <span>{editingClient ? "Apply Modifications" : "Register Partner Profile"}</span>
@@ -4442,7 +4464,7 @@ export default function AdminPanel() {
                       </button>
                       <button
                         type="submit"
-                        className="bg-indigo-650 hover:bg-indigo-600 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-indigo-650/10 cursor-pointer"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer transition-all"
                       >
                         <Save className="w-3.5 h-3.5" />
                         <span>{editingBrand ? "Apply Modifications" : "Register Brand Partner"}</span>
@@ -5124,7 +5146,7 @@ export default function AdminPanel() {
                           value={siteMetadata.siteTitle}
                           onChange={(e) => setSiteMetadata({ ...siteMetadata, siteTitle: e.target.value })}
                           className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                          placeholder="e.g. Cloud Technologies Limited | IT Solutions Bangladesh"
+                          placeholder="e.g. Cloud Technologies | IT Solutions Bangladesh"
                         />
                         <p className="text-slate-400 text-[10px] mt-1 font-medium font-sans">
                           This controls the text displayed on the web browser tab title bar. Keep it elegant and SEO-friendly.
@@ -6695,7 +6717,7 @@ export default function AdminPanel() {
                               />
                             </div>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                               <label className="block text-slate-400 text-[9.5px] mt-1 font-semibold uppercase tracking-wider mb-1">SMTP Username *</label>
                               <input
@@ -6704,6 +6726,16 @@ export default function AdminPanel() {
                                 onChange={(e) => setEmailConfig({ ...emailConfig, smtpUser: e.target.value })}
                                 className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 focus:outline-none"
                                 placeholder="info@yourdomain.com"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-slate-400 text-[9.5px] mt-1 font-semibold uppercase tracking-wider mb-1">SMTP Password *</label>
+                              <input
+                                type="password"
+                                value={emailConfig.smtpPass || ""}
+                                onChange={(e) => setEmailConfig({ ...emailConfig, smtpPass: e.target.value })}
+                                className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 focus:outline-none"
+                                placeholder="••••••••••••"
                               />
                             </div>
                             <div>
@@ -6756,7 +6788,7 @@ export default function AdminPanel() {
                           {`<?php
 /**
  * Elegant cPanel-Compatible Mailer Script
- * Generated dynamically for Cloud Technologies Limited
+ * Generated dynamically for Cloud Technologies
  */
 
 header("Access-Control-Allow-Origin: *");
@@ -6781,28 +6813,70 @@ if (\$_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     "smtpHost" => "${emailConfig.smtpHost || "mail.cloudtechnologies.com.bd"}",
     "smtpPort" => ${emailConfig.smtpPort || 465},
     "smtpUser" => "${emailConfig.smtpUser || ""}",
+    "smtpPass" => "${emailConfig.smtpPass || ""}",
     "smtpSecure" => "${emailConfig.smtpSecure || "ssl"}"
 ];
 
-\$fullName = isset(\$input['fullName']) ? strip_tags(trim(\$input['fullName'])) : '';
-\$corporateEmail = isset(\$input['corporateEmail']) ? filter_var(trim(\$input['corporateEmail']), FILTER_VALIDATE_EMAIL) : '';
-\$mobilePhone = isset(\$input['mobilePhone']) ? strip_tags(trim(\$input['mobilePhone'])) : '';
-\$companyName = isset(\$input['companyName']) ? strip_tags(trim(\$input['companyName'])) : 'Not Provided';
-\$requirementDetails = isset(\$input['requirementDetails']) ? strip_tags(trim(\$input['requirementDetails'])) : '';
-
-\$subject = \$config['subjectPrefix'] . " New Message from " . \$fullName;
-
-\$htmlMessage = "<html><body style='font-family:sans-serif;'>...</body></html>";
-
-\$headers = "MIME-Version: 1.0\\r\\n";
-\$headers .= "Content-type:text/html;charset=UTF-8\\r\\n";
-\$headers .= "From: " . \$config['senderName'] . " <" . \$config['senderEmail'] . ">\\r\\n";
-
-if (mail(\$config['receiverEmail'], \$subject, \$htmlMessage, \$headers)) {
-    echo json_encode(["status" => "success"]);
-} else {
-    echo json_encode(["status" => "error", "message" => "Transfer failure"]);
-}`}
+function send_mail_routing(\$config, \$subject, \$htmlMessage, \$fullName, \$corporateEmail) {
+    if (!\$config['useSmtp']) {
+        \$headers = "MIME-Version: 1.0\\r\\n";
+        \$headers .= "Content-type:text/html;charset=UTF-8\\r\\n";
+        \$headers .= "From: " . \$config['senderName'] . " <" . \$config['senderEmail'] . ">\\r\\n";
+        \$headers .= "Reply-To: " . \$fullName . " <" . \$corporateEmail . ">\\r\\n";
+        return mail(\$config['receiverEmail'], \$subject, \$htmlMessage, \$headers);
+    }
+    
+    try {
+        \$host = \$config['smtpHost'];
+        if (\$config['smtpSecure'] === 'ssl') { \$host = 'ssl://' . \$host; }
+        \$socket = @fsockopen(\$host, intval(\$config['smtpPort']), \$errno, \$errstr, 15);
+        if (!\$socket) { return false; }
+        
+        \$read = fgets(\$socket, 515);
+        fwrite(\$socket, "EHLO " . \$_SERVER['SERVER_NAME'] . "\\r\\n");
+        \$read = fgets(\$socket, 515);
+        
+        if (\$config['smtpSecure'] === 'tls') {
+            fwrite(\$socket, "STARTTLS\\r\\n");
+            \$read = fgets(\$socket, 515);
+            if (!stream_socket_enable_crypto(\$socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) { return false; }
+            fwrite(\$socket, "EHLO " . \$_SERVER['SERVER_NAME'] . "\\r\\n");
+            \$read = fgets(\$socket, 515);
+        }
+        
+        if (!empty(\$config['smtpUser']) && !empty(\$config['smtpPass'])) {
+            fwrite(\$socket, "AUTH LOGIN\\r\\n");
+            \$read = fgets(\$socket, 515);
+            fwrite(\$socket, base64_encode(\$config['smtpUser']) . "\\r\\n");
+            \$read = fgets(\$socket, 515);
+            fwrite(\$socket, base64_encode(\$config['smtpPass']) . "\\r\\n");
+            \$read = fgets(\$socket, 515);
+        }
+        
+        fwrite(\$socket, "MAIL FROM: <" . \$config['smtpUser'] . ">\\r\\n");
+        \$read = fgets(\$socket, 515);
+        fwrite(\$socket, "RCPT TO: <" . \$config['receiverEmail'] . ">\\r\\n");
+        \$read = fgets(\$socket, 515);
+        fwrite(\$socket, "DATA\\r\\n");
+        \$read = fgets(\$socket, 515);
+        
+        \$headers = "MIME-Version: 1.0\\r\\n";
+        \$headers .= "Content-Type: text/html; charset=UTF-8\\r\\n";
+        \$headers .= "To: <" . \$config['receiverEmail'] . ">\\r\\n";
+        \$headers .= "From: \\"" . \$config['senderName'] . "\\" <" . \$config['smtpUser'] . ">\\r\\n";
+        \$headers .= "Reply-To: \\"" . \$fullName . "\\" <" . \$corporateEmail . ">\\r\\n";
+        \$headers .= "Subject: =?utf-8?B?" . base64_encode(\$subject) . "?=\\r\\n\\r\\n";
+        
+        fwrite(\$socket, \$headers . \$htmlMessage . "\\r\\n.\\r\\n");
+        \$read = fgets(\$socket, 515);
+        fwrite(\$socket, "QUIT\\r\\n");
+        fclose(\$socket);
+        return true;
+    } catch (Exception \$e) {
+        return false;
+    }
+}
+`}
                         </pre>
                       </div>
 
@@ -6814,7 +6888,7 @@ if (mail(\$config['receiverEmail'], \$subject, \$htmlMessage, \$headers)) {
                             const code = `<?php
 /**
  * Elegant cPanel-Compatible Mailer Script
- * Generated dynamically for Cloud Technologies Limited
+ * Generated dynamically for Cloud Technologies
  * 
  * Host this script as 'mailer.php' in public_html/ alongside index.html.
  */
@@ -6840,14 +6914,76 @@ if (!\$input) {
 \$config = [
     "receiverEmail" => "${emailConfig.receiverEmail || "info@cloudtechnologies.com.bd"}",
     "senderEmail" => "${emailConfig.senderEmail || "noreply@cloudtechnologies.com.bd"}",
-    "senderName" => "${emailConfig.senderName || "Cloud Technologies Inquiry"}",
+    "senderName" => "${emailConfig.senderName || "Cloud Technologies CRM Portal"}",
     "subjectPrefix" => "${emailConfig.subjectPrefix || "[CTL Website Inquiry] "}",
     "useSmtp" => ${emailConfig.activeMethod === "php_mailer_smtp" ? 'true' : 'false'},
     "smtpHost" => "${emailConfig.smtpHost || "mail.cloudtechnologies.com.bd"}",
     "smtpPort" => ${emailConfig.smtpPort || 465},
     "smtpUser" => "${emailConfig.smtpUser || ""}",
+    "smtpPass" => "${emailConfig.smtpPass || ""}",
     "smtpSecure" => "${emailConfig.smtpSecure || "ssl"}"
 ];
+
+function send_mail_routing(\$config, \$subject, \$htmlMessage, \$fullName, \$corporateEmail) {
+    if (!\$config['useSmtp']) {
+        \$headers = "MIME-Version: 1.0\\r\\n";
+        \$headers .= "Content-type:text/html;charset=UTF-8\\r\\n";
+        \$headers .= "From: " . \$config['senderName'] . " <" . \$config['senderEmail'] . ">\\r\\n";
+        \$headers .= "Reply-To: " . \$fullName . " <" . \$corporateEmail . ">\\r\\n";
+        \$headers .= "X-Mailer: PHP/" . phpversion() . "\\r\\n";
+        return mail(\$config['receiverEmail'], \$subject, \$htmlMessage, \$headers);
+    }
+    
+    try {
+        \$host = \$config['smtpHost'];
+        if (\$config['smtpSecure'] === 'ssl') { \$host = 'ssl://' . \$host; }
+        \$socket = @fsockopen(\$host, intval(\$config['smtpPort']), \$errno, \$errstr, 15);
+        if (!\$socket) { return false; }
+        
+        \$read = fgets(\$socket, 515);
+        fwrite(\$socket, "EHLO " . \$_SERVER['SERVER_NAME'] . "\\r\\n");
+        \$read = fgets(\$socket, 515);
+        
+        if (\$config['smtpSecure'] === 'tls') {
+            fwrite(\$socket, "STARTTLS\\r\\n");
+            \$read = fgets(\$socket, 515);
+            if (!stream_socket_enable_crypto(\$socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) { return false; }
+            fwrite(\$socket, "EHLO " . \$_SERVER['SERVER_NAME'] . "\\r\\n");
+            \$read = fgets(\$socket, 515);
+        }
+        
+        if (!empty(\$config['smtpUser']) && !empty(\$config['smtpPass'])) {
+            fwrite(\$socket, "AUTH LOGIN\\r\\n");
+            \$read = fgets(\$socket, 515);
+            fwrite(\$socket, base64_encode(\$config['smtpUser']) . "\\r\\n");
+            \$read = fgets(\$socket, 515);
+            fwrite(\$socket, base64_encode(\$config['smtpPass']) . "\\r\\n");
+            \$read = fgets(\$socket, 515);
+        }
+        
+        fwrite(\$socket, "MAIL FROM: <" . \$config['smtpUser'] . ">\\r\\n");
+        \$read = fgets(\$socket, 515);
+        fwrite(\$socket, "RCPT TO: <" . \$config['receiverEmail'] . ">\\r\\n");
+        \$read = fgets(\$socket, 515);
+        fwrite(\$socket, "DATA\\r\\n");
+        \$read = fgets(\$socket, 515);
+        
+        \$headers = "MIME-Version: 1.0\\r\\n";
+        \$headers .= "Content-Type: text/html; charset=UTF-8\\r\\n";
+        \$headers .= "To: <" . \$config['receiverEmail'] . ">\\r\\n";
+        \$headers .= "From: \\"" . \$config['senderName'] . "\\" <" . \$config['smtpUser'] . ">\\r\\n";
+        \$headers .= "Reply-To: \\"" . \$fullName . "\\" <" . \$corporateEmail . ">\\r\\n";
+        \$headers .= "Subject: =?utf-8?B?" . base64_encode(\$subject) . "?=\\r\\n\\r\\n";
+        
+        fwrite(\$socket, \$headers . \$htmlMessage . "\\r\\n.\\r\\n");
+        \$read = fgets(\$socket, 515);
+        fwrite(\$socket, "QUIT\\r\\n");
+        fclose(\$socket);
+        return true;
+    } catch (Exception \$e) {
+        return false;
+    }
+}
 
 \$fullName = isset(\$input['fullName']) ? strip_tags(trim(\$input['fullName'])) : '';
 \$corporateEmail = isset(\$input['corporateEmail']) ? filter_var(trim(\$input['corporateEmail']), FILTER_VALIDATE_EMAIL) : '';
@@ -6888,16 +7024,10 @@ if (empty(\$fullName) || empty(\$corporateEmail)) {
 </html>
 ";
 
-\$headers = "MIME-Version: 1.0" . "\\r\\n";
-\$headers .= "Content-type:text/html;charset=UTF-8" . "\\r\\n";
-\$headers .= "From: " . \$config['senderName'] . " <" . \$config['senderEmail'] . ">" . "\\r\\n";
-\$headers .= "Reply-To: " . \$fullName . " <" . \$corporateEmail . ">" . "\\r\\n";
-\$headers .= "X-Mailer: PHP/" . phpversion() . "\\r\\n";
-
-if (mail(\$config['receiverEmail'], \$subject, \$htmlMessage, \$headers)) {
+if (send_mail_routing(\$config, \$subject, \$htmlMessage, \$fullName, \$corporateEmail)) {
     echo json_encode(["status" => "success", "message" => "Delivered safely!"]);
 } else {
-    echo json_encode(["status" => "error", "message" => "cPanel local sendmail failure."]);
+    echo json_encode(["status" => "error", "message" => "cPanel mailer transmission failure."]);
 }
 ?>`;
 
@@ -6930,6 +7060,7 @@ if (mail(\$config['receiverEmail'], \$subject, \$htmlMessage, \$headers)) {
                               smtpHost: emailConfig.smtpHost,
                               smtpPort: emailConfig.smtpPort,
                               smtpUser: emailConfig.smtpUser,
+                              smtpPass: emailConfig.smtpPass,
                               smtpSecure: emailConfig.smtpSecure
                             }, null, 2);
 
@@ -6952,6 +7083,607 @@ if (mail(\$config['receiverEmail'], \$subject, \$htmlMessage, \$headers)) {
 
                     </div>
 
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
+            {/* ====== TAB 20: MYSQL DATABASE INTEGRATION ====== */}
+            {activeTab === "mysql-settings" && (
+              <div className="space-y-8 animate-fade-in text-[12px] font-sans">
+                {/* Header info */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="text-left font-sans">
+                    <h2 className="text-xl font-extrabold text-slate-800 flex items-center gap-2">
+                      <Database className="w-5 h-5 text-indigo-650" />
+                      <span>CPanel MySQL Databases Sync Integration</span>
+                    </h2>
+                    <p className="text-slate-500 text-xs font-semibold mt-1">
+                      Setup a dynamic MySQL system to update, add, and publish website content in real-time in your cPanel.
+                    </p>
+                  </div>
+
+                  {/* Synchronizers Status Badge list */}
+                  <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 font-sans">
+                    <span className="text-[10px] uppercase font-extrabold tracking-wider pl-2 pr-1 text-slate-500">Active Source:</span>
+                    <span className={`text-[10px] px-3 py-1 font-bold rounded-lg uppercase ${
+                      mysqlConfig.activeDataSource === "mysql_bridge"
+                        ? "bg-emerald-600 text-white shadow-sm"
+                        : "bg-indigo-600 text-white shadow-sm"
+                    }`}>
+                      {mysqlConfig.activeDataSource === "mysql_bridge" ? "Live MySQL Database" : "Web LocalStorage"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Main Body Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-xs font-sans">
+                  
+                  {/* Left Column (Configurations panel): Col span 7 */}
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      dataStore.saveMySQLConfig(mysqlConfig);
+                      setSaveMySQLSuccess("MySQL connection configurations updated successfully!");
+                      setTimeout(() => setSaveMySQLSuccess(""), 4500);
+                    }}
+                    className="lg:col-span-12 xl:col-span-12 bg-slate-50 border border-slate-200/70 p-6 md:p-8 rounded-3xl space-y-6 text-left font-sans"
+                  >
+                    
+                    <div className="space-y-1">
+                      <h3 className="font-extrabold text-sm text-slate-800">Database Connection Credentials</h3>
+                      <p className="text-[11px] text-slate-400 font-medium font-sans">
+                        Provide credentials for your MySQL DB in cPanel. These are injected into your downloadable bridge.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block text-slate-500 text-[9.5px] font-bold uppercase tracking-wider mb-1.5">DB HostName *</label>
+                        <input
+                          type="text"
+                          value={mysqlConfig.dbHost}
+                          onChange={(e) => setMysqlConfig({ ...mysqlConfig, dbHost: e.target.value })}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                          placeholder="localhost"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-500 text-[9.5px] font-bold uppercase tracking-wider mb-1.5">DB Name (Database) *</label>
+                        <input
+                          type="text"
+                          value={mysqlConfig.dbName}
+                          onChange={(e) => setMysqlConfig({ ...mysqlConfig, dbName: e.target.value })}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                          placeholder="cpanelUsername_ctl_db"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block text-slate-500 text-[9.5px] font-bold uppercase tracking-wider mb-1.5">DB Username (User) *</label>
+                        <input
+                          type="text"
+                          value={mysqlConfig.dbUser}
+                          onChange={(e) => setMysqlConfig({ ...mysqlConfig, dbUser: e.target.value })}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                          placeholder="cpanelUsername_ctl_usr"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-500 text-[9.5px] font-bold uppercase tracking-wider mb-1.5">DB User Password</label>
+                        <input
+                          type="password"
+                          value={mysqlConfig.dbPass}
+                          onChange={(e) => setMysqlConfig({ ...mysqlConfig, dbPass: e.target.value })}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                          placeholder="•••••••••••••••"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-200/50 my-2" />
+
+                    <div>
+                      <label className="block text-slate-500 text-[9.5px] font-bold uppercase tracking-wider mb-1.5">Bridge php Script URL *</label>
+                      <input
+                        type="url"
+                        value={mysqlConfig.apiEndpointUrl}
+                        onChange={(e) => setMysqlConfig({ ...mysqlConfig, apiEndpointUrl: e.target.value })}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600 font-mono"
+                        placeholder="https://www.yourdomain.com/db_bridge.php"
+                        required
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        Upload your generated <span className="font-extrabold text-slate-600 font-mono">db_bridge.php</span> script inside your public cPanel web directory (<span className="font-mono font-bold text-indigo-600">public_html/</span>), then specify its URL address here.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-500 text-[9.5px] font-bold uppercase tracking-wider mb-2">Active Data Pipeline Source</label>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div 
+                          onClick={() => setMysqlConfig({ ...mysqlConfig, activeDataSource: "local_storage" })}
+                          className={`border p-4 rounded-xl cursor-pointer transition-all flex flex-col gap-1.5 text-left ${
+                            mysqlConfig.activeDataSource === "local_storage"
+                              ? "bg-slate-100 border-indigo-600 ring-1 ring-indigo-600/30 font-sans"
+                              : "bg-white border-slate-200 hover:border-slate-300 font-sans"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`w-3.5 h-3.5 rounded-full border-4 flex items-center justify-center ${
+                              mysqlConfig.activeDataSource === "local_storage" ? "border-indigo-600 bg-white" : "border-slate-300 bg-white"
+                            }`} />
+                            <span className="text-xs font-bold text-slate-800">Local Storage Only</span>
+                          </div>
+                          <span className="text-[10.5px] text-slate-400 leading-relaxed font-sans pl-5">
+                            Saves all content drafts locally on the visitor's computer device fallback cache storage. Pure static SPA pipeline.
+                          </span>
+                        </div>
+
+                        <div 
+                          onClick={() => setMysqlConfig({ ...mysqlConfig, activeDataSource: "mysql_bridge" })}
+                          className={`border p-4 rounded-xl cursor-pointer transition-all flex flex-col gap-1.5 text-left ${
+                            mysqlConfig.activeDataSource === "mysql_bridge"
+                              ? "bg-slate-100 border-indigo-600 ring-1 ring-indigo-600/30 font-sans"
+                              : "bg-white border-slate-200 hover:border-slate-300 font-sans"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`w-3.5 h-3.5 rounded-full border-4 flex items-center justify-center ${
+                              mysqlConfig.activeDataSource === "mysql_bridge" ? "border-indigo-600 bg-white" : "border-slate-300 bg-white"
+                            }`} />
+                            <span className="text-xs font-bold text-slate-800">MySQL Synced Database Engine</span>
+                          </div>
+                          <span className="text-[10.5px] text-slate-400 leading-relaxed font-sans pl-5">
+                            Connects directly to your cPanel hosting DB via bridge. Loads and posts real dynamic system entries instantly!
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-2 font-sans">
+                      <div className="text-slate-500 text-[10px] font-sans">
+                        {saveMySQLSuccess && (
+                          <span className="text-emerald-600 font-extrabold flex items-center gap-1">
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            <span>{saveMySQLSuccess}</span>
+                          </span>
+                        )}
+                      </div>
+                      
+                      <button
+                        type="submit"
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-md active:scale-98 cursor-pointer text-xs flex items-center gap-1.5 font-sans"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>Save MySQL Parameters</span>
+                      </button>
+                    </div>
+
+                    {/* Live Server Operations Panel */}
+                    <div className="border-t border-slate-200 pt-6 mt-6 space-y-4 font-sans">
+                      <h4 className="font-extrabold text-xs text-slate-800 uppercase tracking-widest font-sans">Real-time Connection & Sync Routines</h4>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {/* Connection Test button */}
+                        <button
+                          type="button"
+                          disabled={mysqlTesting}
+                          onClick={async () => {
+                            setMysqlTesting(true);
+                            setMysqlSyncMsg("");
+                            setMysqlSyncErr("");
+                            const res = await dataStore.testMySQLConnection();
+                            setMysqlTesting(false);
+                            if (res.success) {
+                              setMysqlSyncMsg(res.message);
+                            } else {
+                              setMysqlSyncErr(res.message);
+                            }
+                          }}
+                          className="bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-100 p-3 rounded-xl border border-slate-700 shadow-sm cursor-pointer hover:scale-102 active:scale-98 transition-all flex flex-col items-center justify-center text-center gap-1 font-sans"
+                        >
+                          <RefreshCw className={`w-4 h-4 text-indigo-400 ${mysqlTesting ? 'animate-spin' : ''}`} />
+                          <span className="text-[10px] font-extrabold uppercase tracking-wide">Test Connection</span>
+                        </button>
+
+                        {/* Database Setup Tables initializer */}
+                        <button
+                          type="button"
+                          disabled={mysqlSyncing}
+                          onClick={async () => {
+                            if (!window.confirm("Initialize Database Schema? This will check and build required dynamic tables inside your cPanel database.")) {
+                              return;
+                            }
+                            setMysqlSyncing(true);
+                            setMysqlSyncMsg("");
+                            setMysqlSyncErr("");
+                            try {
+                              const res = await fetch(mysqlConfig.apiEndpointUrl, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ 
+                                  action: "initialize",
+                                  dbConfig: {
+                                    host: mysqlConfig.dbHost,
+                                    name: mysqlConfig.dbName,
+                                    user: mysqlConfig.dbUser,
+                                    pass: mysqlConfig.dbPass
+                                  }
+                                })
+                              });
+                              const data = await res.json();
+                              if (data.status === "success") {
+                                setMysqlSyncMsg(data.message);
+                              } else {
+                                setMysqlSyncErr(data.message);
+                              }
+                            } catch (e: any) {
+                              setMysqlSyncErr(`Failure initializing: ${e.message || 'Is db_bridge.php uploaded?'}`);
+                            }
+                            setMysqlSyncing(false);
+                          }}
+                          className="bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-100 p-3 rounded-xl border border-slate-700 shadow-sm cursor-pointer hover:scale-102 active:scale-98 transition-all flex flex-col items-center justify-center text-center gap-1 font-sans"
+                        >
+                          <Terminal className="w-4 h-4 text-emerald-400" />
+                          <span className="text-[10px] font-extrabold uppercase tracking-wide">Initialize Tables</span>
+                        </button>
+
+                        {/* Force Pull content button */}
+                        <button
+                          type="button"
+                          disabled={mysqlSyncing}
+                          onClick={async () => {
+                            setMysqlSyncing(true);
+                            setMysqlSyncMsg("");
+                            setMysqlSyncErr("");
+                            const res = await dataStore.syncWithMySQL(true);
+                            setMysqlSyncing(false);
+                            if (res.success) {
+                              setMysqlSyncMsg(res.message);
+                            } else {
+                              setMysqlSyncErr(res.message);
+                            }
+                          }}
+                          className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white p-3 rounded-xl shadow-sm cursor-pointer hover:scale-102 active:scale-98 transition-all flex flex-col items-center justify-center text-center gap-1 font-sans"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span className="text-[10px] font-extrabold uppercase tracking-wide">Sync (Pull DB)</span>
+                        </button>
+
+                        {/* Force Push content button */}
+                        <button
+                          type="button"
+                          disabled={mysqlSyncing}
+                          onClick={async () => {
+                            if (!window.confirm("Push Local Drafts to SQL Database? This will overwrite existing contents in your MySQL server tables with what is currently pictured here!")) {
+                              return;
+                            }
+                            setMysqlSyncing(true);
+                            setMysqlSyncMsg("");
+                            setMysqlSyncErr("");
+                            const res = await dataStore.pushToMySQL();
+                            setMysqlSyncing(false);
+                            if (res.success) {
+                              setMysqlSyncMsg(res.message);
+                            } else {
+                              setMysqlSyncErr(res.message);
+                            }
+                          }}
+                          className="bg-indigo-600 hover:bg-indigo-505 text-white p-3 rounded-xl shadow-sm cursor-pointer hover:scale-102 active:scale-98 transition-all flex flex-col items-center justify-center text-center gap-1 font-sans"
+                        >
+                          <Upload className="w-4 h-4" />
+                          <span className="text-[10px] font-extrabold uppercase tracking-wide">Publish (Push DB)</span>
+                        </button>
+                      </div>
+
+                      {mysqlSyncMsg && (
+                        <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 rounded-xl p-3 text-xs leading-relaxed font-sans font-bold text-left">
+                          {mysqlSyncMsg}
+                        </div>
+                      )}
+
+                      {mysqlSyncErr && (
+                        <div className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-xl p-3 text-xs leading-relaxed font-sans font-bold text-left">
+                          {mysqlSyncErr}
+                        </div>
+                      )}
+                    </div>
+                  </form>
+
+                  {/* Clean Separation Grid items */}
+                  <div className="lg:col-span-12 xl:col-span-12 mt-6 pt-6 border-t border-slate-200 text-left font-sans">
+                    <div className="bg-[#0f0e26] border border-slate-800 text-slate-300 p-6 rounded-2xl flex flex-col justify-between space-y-4 font-sans">
+                      
+                      <div className="space-y-2 font-sans text-left">
+                        <div className="flex items-center gap-2">
+                          <Code className="w-5 h-5 text-indigo-400" />
+                          <h4 className="text-white font-extrabold text-xs uppercase tracking-wider font-sans">Dynamic DB Bridge Scripts generator</h4>
+                        </div>
+                        <p className="text-[10.5px] text-slate-400 font-sans leading-relaxed">
+                          This script maps your connection settings automatically inside customized code blocks. Just download these two files first:
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 font-sans">
+                        <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3 font-sans text-left">
+                          <h5 className="text-white text-xs font-bold flex items-center gap-1.5 font-mono">1. db_bridge.php</h5>
+                          <span className="text-[10px] text-slate-400 block font-sans">Upload this directly inside your cPanel manager <span className="font-mono text-indigo-400 font-bold">public_html/</span> root next to index.html. Keep your SQL passwords secure!</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const code = `<?php
+/**
+ * DB Bridge API for Cloud Technologies Website
+ * Handles Secure Database Communication from React Frontend in cPanel
+ */
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Content-Type: application/json; charset=UTF-8");
+
+if (\$_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+\$db_host = "${mysqlConfig.dbHost || "localhost"}";
+\$db_name = "${mysqlConfig.dbName || "ctl_db"}";
+\$db_user = "${mysqlConfig.dbUser || "ctl_user"}";
+\$db_pass = "${mysqlConfig.dbPass || ""}";
+
+\$inputJSON = file_get_contents('php://input');
+\$input = json_decode(\$inputJSON, true);
+
+if (!\$input) {
+    \$input = [];
+}
+
+\$action = isset(\$input['action']) ? \$input['action'] : '';
+
+if (isset(\$input['dbConfig'])) {
+    \$db_host = \$input['dbConfig']['host'];
+    \$db_name = \$input['dbConfig']['name'];
+    \$db_user = \$input['dbConfig']['user'];
+    \$db_pass = \$input['dbConfig']['pass'];
+}
+
+try {
+    \$conn = new PDO("mysql:host=\$db_host;dbname=\$db_name;charset=utf8mb4", \$db_user, \$db_pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ]);
+} catch (PDOException \$e) {
+    echo json_encode(["status" => "error", "message" => "Database Connection Failed: " . \$e->getMessage()]);
+    exit;
+}
+
+if (\$action === 'test') {
+    echo json_encode(["status" => "success", "message" => "Connection to MySQL Database succeeded! Database server is responsive."]);
+    exit;
+}
+
+// Auto-initialize tables
+if (\$action === 'initialize') {
+    try {
+        \$conn->exec("CREATE TABLE IF NOT EXISTS \`ctl_key_value_config\` (
+            \`cfg_key\` varchar(100) NOT NULL PRIMARY KEY,
+            \`cfg_val\` longtext NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        \$conn->exec("CREATE TABLE IF NOT EXISTS \`ctl_inquiries\` (
+            \`id\` varchar(100) NOT NULL PRIMARY KEY,
+            \`fullName\` varchar(255) NOT NULL,
+            \`companyName\` varchar(255) DEFAULT NULL,
+            \`corporateEmail\` varchar(255) NOT NULL,
+            \`mobilePhone\` varchar(50) NOT NULL,
+            \`requirementDetails\` text NOT NULL,
+            \`status\` varchar(50) DEFAULT 'new',
+            \`createdAt\` varchar(100) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        echo json_encode(["status" => "success", "message" => "MySQL Database Schema Tables setup successfully inside phpMyAdmin!"]);
+    } catch (PDOException \$e) {
+        echo json_encode(["status" => "error", "message" => "Setup execution failed: " . \$e->getMessage()]);
+    }
+    exit;
+}
+
+if (\$action === 'pull_all') {
+    try {
+        \$stmt = \$conn->query("SELECT * FROM ctl_key_value_config");
+        \$configs = [];
+        while (\$row = \$stmt->fetch()) {
+            \$configs[\$row['cfg_key']] = json_decode(\$row['cfg_val'], true);
+        }
+
+        \$stmt_inq = \$conn->query("SELECT * FROM ctl_inquiries ORDER BY createdAt DESC");
+        \$inqs = \$stmt_inq->fetchAll();
+
+        \$configs['ctl_inquiries'] = \$inqs;
+
+        echo json_encode(["status" => "success", "data" => \$configs]);
+    } catch (PDOException \$e) {
+        echo json_encode(["status" => "error", "message" => "Pull execution failed: " . \$e->getMessage()]);
+    }
+    exit;
+}
+
+if (\$action === 'push_all') {
+    if (!isset(\$input['data'])) {
+        echo json_encode(["status" => "error", "message" => "No bundle database payload detected."]);
+        exit;
+    }
+
+    try {
+        \$conn->beginTransaction();
+
+        \$conn->exec("CREATE TABLE IF NOT EXISTS \`ctl_key_value_config\` (
+            \`cfg_key\` varchar(100) NOT NULL PRIMARY KEY,
+            \`cfg_val\` longtext NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        \$stmt = \$conn->prepare("INSERT INTO ctl_key_value_config (cfg_key, cfg_val) VALUES (:key, :val) ON DUPLICATE KEY UPDATE cfg_val = :val");
+
+        foreach (\$input['data'] as \$key => \$val) {
+            if (\$key === 'ctl_inquiries') continue;
+            \$serialized = json_encode(\$val, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            \$stmt->execute(['key' => \$key, 'val' => \$serialized]);
+        }
+
+        if (isset(\$input['data']['ctl_inquiries'])) {
+            \$conn->exec("CREATE TABLE IF NOT EXISTS \`ctl_inquiries\` (
+                \`id\` varchar(100) NOT NULL PRIMARY KEY,
+                \`fullName\` varchar(255) NOT NULL,
+                \`companyName\` varchar(255) DEFAULT NULL,
+                \`corporateEmail\` varchar(255) NOT NULL,
+                \`mobilePhone\` varchar(50) NOT NULL,
+                \`requirementDetails\` text NOT NULL,
+                \`status\` varchar(50) DEFAULT 'new',
+                \`createdAt\` varchar(100) NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            \$stmt_inq = \$conn->prepare("INSERT INTO ctl_inquiries (id, fullName, companyName, corporateEmail, mobilePhone, requirementDetails, status, createdAt) VALUES (:id, :fullName, :companyName, :corporateEmail, :mobilePhone, :requirementDetails, :status, :createdAt) ON DUPLICATE KEY UPDATE status = :status");
+
+            foreach (\$input['data']['ctl_inquiries'] as \$inq) {
+                \$stmt_inq->execute([
+                    'id' => \$inq['id'],
+                    'fullName' => \$inq['fullName'],
+                    'companyName' => isset(\$inq['companyName']) ? \$inq['companyName'] : '',
+                    'corporateEmail' => \$inq['corporateEmail'],
+                    'mobilePhone' => \$inq['mobilePhone'],
+                    'requirementDetails' => \$inq['requirementDetails'],
+                    'status' => isset(\$inq['status']) ? \$inq['status'] : 'new',
+                    'createdAt' => \$inq['createdAt']
+                ]);
+            }
+        }
+
+        \$conn->commit();
+        echo json_encode(["status" => "success", "message" => "All frontend records published successfully into the MySQL server DB."]);
+    } catch (Exception \$e) {
+        \$conn->rollBack();
+        echo json_encode(["status" => "error", "message" => "Push execution failed: " . \$e->getMessage()]);
+    }
+    exit;
+}
+
+if (\$action === 'save_inquiry') {
+    if (!isset(\$input['inquiry'])) {
+        echo json_encode(["status" => "error", "message" => "No inquiry records submitted."]);
+        exit;
+    }
+
+    try {
+        \$inq = \$input['inquiry'];
+        
+        \$conn->exec("CREATE TABLE IF NOT EXISTS \`ctl_inquiries\` (
+            \`id\` varchar(100) NOT NULL PRIMARY KEY,
+            \`fullName\` varchar(255) NOT NULL,
+            \`companyName\` varchar(255) DEFAULT NULL,
+            \`corporateEmail\` varchar(255) NOT NULL,
+            \`mobilePhone\` varchar(50) NOT NULL,
+            \`requirementDetails\` text NOT NULL,
+            \`status\` varchar(50) DEFAULT 'new',
+            \`createdAt\` varchar(100) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        \$stmt = \$conn->prepare("INSERT INTO ctl_inquiries (id, fullName, companyName, corporateEmail, mobilePhone, requirementDetails, status, createdAt) VALUES (:id, :fullName, :companyName, :corporateEmail, :mobilePhone, :requirementDetails, :status, :createdAt)");
+        
+        \$stmt->execute([
+            'id' => \$inq['id'],
+            'fullName' => \$inq['fullName'],
+            'companyName' => isset(\$inq['companyName']) ? \$inq['companyName'] : '',
+            'corporateEmail' => \$inq['corporateEmail'],
+            'mobilePhone' => \$inq['mobilePhone'],
+            'requirementDetails' => \$inq['requirementDetails'],
+            'status' => 'new',
+            'createdAt' => \$inq['createdAt']
+        ]);
+
+        echo json_encode(["status" => "success", "message" => "Inquiry saved inside cPanel MySQL Database records successfully!"]);
+    } catch (PDOException \$e) {
+        echo json_encode(["status" => "error", "message" => "Saving failed: " . \$e->getMessage()]);
+    }
+    exit;
+}
+?>`;
+                              const blob = new Blob([code], { type: "text/plain" });
+                              const url = URL.createObjectURL(blob);
+                              const link = document.createElement("a");
+                              link.href = url;
+                              link.download = "db_bridge.php";
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              URL.revokeObjectURL(url);
+                            }}
+                            className="bg-indigo-600 hover:bg-indigo-505 text-white font-extrabold text-[10px] uppercase tracking-wider py-2.5 rounded-xl block w-full text-center cursor-pointer font-sans"
+                          >
+                            <Download className="w-3.5 h-3.5 inline mr-1.5" />
+                            <span>Download db_bridge.php</span>
+                          </button>
+                        </div>
+
+                        <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3 font-sans text-left">
+                          <h5 className="text-white text-xs font-bold flex items-center gap-1.5 font-mono">2. database_schema.sql</h5>
+                          <span className="text-[10px] text-slate-400 block font-sans">Open phpMyAdmin inside cPanel, navigate to your newly created database, click the <span className="font-extrabold text-indigo-400">Import</span> or <span className="font-extrabold text-indigo-400">SQL</span> tab, and execute this file.</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const sql = `-- -------------------------------------------------------------
+-- MySQL Database Installation Schema for Cloud Technologies Website
+-- Host on cPanel & Import this directly inside phpMyAdmin
+-- -------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS \`ctl_key_value_config\` (
+  \`cfg_key\` varchar(100) NOT NULL,
+  \`cfg_val\` longtext NOT NULL,
+  PRIMARY KEY (\`cfg_key\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS \`ctl_inquiries\` (
+  \`id\` varchar(100) NOT NULL,
+  \`fullName\` varchar(255) NOT NULL,
+  \`companyName\` varchar(255) DEFAULT NULL,
+  \`corporateEmail\` varchar(255) NOT NULL,
+  \`mobilePhone\` varchar(50) NOT NULL,
+  \`requirementDetails\` text NOT NULL,
+  \`status\` varchar(50) DEFAULT 'new',
+  \`createdAt\` varchar(100) NOT NULL,
+  PRIMARY KEY (\`id\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+`;
+                              const blob = new Blob([sql], { type: "text/plain" });
+                              const url = URL.createObjectURL(blob);
+                              const link = document.createElement("a");
+                              link.href = url;
+                              link.download = "database_schema.sql";
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              URL.revokeObjectURL(url);
+                            }}
+                            className="bg-slate-850 hover:bg-slate-700 text-slate-200 border border-slate-700 font-extrabold text-[10px] uppercase tracking-wider py-2.5 rounded-xl block w-full text-center cursor-pointer font-sans"
+                          >
+                            <Download className="w-3.5 h-3.5 inline mr-1.5" />
+                            <span>Download database_schema.sql</span>
+                          </button>
+                        </div>
+                      </div>
+
+                    </div>
                   </div>
 
                 </div>

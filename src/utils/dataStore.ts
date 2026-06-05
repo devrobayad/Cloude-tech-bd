@@ -6,7 +6,7 @@
 import { SerializableSolution, defaultSolutions } from "./defaultSolutions";
 export type { SerializableSolution };
 
-// Centralized LocalStorage Data Store for RS Technologies Limited / Cloud Technologies Limited website
+// Centralized LocalStorage Data Store for RS Technologies Limited / Cloud Technologies website
 // This supports live management of content across different sections as well as managing contact submissions.
 
 export interface NewsItem {
@@ -263,6 +263,15 @@ export interface EmailIntegrationConfig {
   activeMethod: "php_mail" | "php_mailer_smtp" | "local_storage_only";
 }
 
+export interface MySQLConfig {
+  dbHost: string;
+  dbName: string;
+  dbUser: string;
+  dbPass: string;
+  apiEndpointUrl: string;
+  activeDataSource: "local_storage" | "mysql_bridge";
+}
+
 export interface SiteMetadata {
   siteTitle: string;
   faviconUrl: string;
@@ -273,7 +282,7 @@ export interface SiteMetadata {
 }
 
 const defaultSiteMetadata: SiteMetadata = {
-  siteTitle: "Cloud Technologies Limited | Bangladesh's Leading IT Provider",
+  siteTitle: "Cloud Technologies | Bangladesh's Leading IT Provider",
   faviconUrl: "",
   preloaderEnabled: true,
   preloaderPreset: "circle",
@@ -301,6 +310,15 @@ const defaultEmailIntegrationConfig: EmailIntegrationConfig = {
   smtpPass: "",
   smtpSecure: "ssl",
   activeMethod: "php_mail"
+};
+
+const defaultMySQLConfig: MySQLConfig = {
+  dbHost: "localhost",
+  dbName: "ctl_db",
+  dbUser: "ctl_user",
+  dbPass: "",
+  apiEndpointUrl: "https://www.cloudtechnologies.com.bd/db_bridge.php",
+  activeDataSource: "local_storage"
 };
 
 const defaultClients: DBClient[] = [
@@ -346,7 +364,7 @@ const defaultContactConfig: ContactInfo = {
   addressBrief: "1st Floor, House 05, Block E, Road 02, Section 12, Pallabi, Mirpur, Dhaka 1216",
   whatsapp: "https://wa.me/8809639992999",
   facebookPage: "https://m.me/genzesports",
-  companyName: "Cloud Technologies Limited",
+  companyName: "Cloud Technologies",
   googleMapEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3649.97018898124!2d90.3644053760618!3d23.819665678822064!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c0d297960cf9%3A0x6e9f2ca35b2e3e2c!2sMirpur%2012%20Bus%20Stand!5e0!3m2!1sen!2sbd!4v1717320000000!5m2!1sen!2sbd"
 };
 
@@ -516,11 +534,11 @@ const defaultHeaderConfig: HeaderConfig = {
 };
 
 const defaultFooterConfig: FooterConfig = {
-  aboutText: "Welcome to Cloud Technologies Limited, the leading provider of innovative and reliable solutions for your enterprise needs. We are a team of passionate and experienced professionals committed to delivering the best value and quality to our customers.",
+  aboutText: "Welcome to Cloud Technologies, the leading provider of innovative and reliable solutions for your enterprise needs. We are a team of passionate and experienced professionals committed to delivering the best value and quality to our customers.",
   facebookUrl: "https://facebook.com",
   linkedinUrl: "https://linkedin.com",
   websiteUrl: "https://www.cloudtechnologies.com.bd",
-  copyrightText: "Copyright © 2026 Cloud Technologies Limited. All Rights Reserved.",
+  copyrightText: "Copyright © 2026 Cloud Technologies. All Rights Reserved.",
   logoUrl: "",
   socials: [
     { id: "soc-1", platform: "Facebook", url: "https://facebook.com" },
@@ -539,7 +557,7 @@ const defaultFooterConfig: FooterConfig = {
 const defaultAboutConfig: AboutConfig = {
   tagline: "Our Company",
   title: "Fast Growing Technology Solutions Provider Company",
-  desc1: "Established in 2019, Cloud Technologies Limited is Bangladesh's leading provider of innovative IT services. We specialize in delivering scalable and reliable technology solutions that enhance operational efficiency, strengthen security, and improve collaboration for modern organizations.",
+  desc1: "Established in 2019, Cloud Technologies is Bangladesh's leading provider of innovative IT services. We specialize in delivering scalable and reliable technology solutions that enhance operational efficiency, strengthen security, and improve collaboration for modern organizations.",
   desc2: "Our team of experienced professionals provides comprehensive services, including the design, deployment, and maintenance of enterprise-grade surveillance systems, structured network infrastructure, and secure communication platforms.",
   badgeTitle: "Trusted for Over 6 Years",
   badgeText: "Trusted for Over 6 Years in Enterprise Networks, Surveillance, Automation, IP Telephony, and Comprehensive Systems",
@@ -548,23 +566,23 @@ const defaultAboutConfig: AboutConfig = {
 
 const defaultChairmanConfig: ChairmanConfig = {
   name: "Ziaur Rahman Zia-FCA",
-  role: "Chairman, Cloud Technologies Limited",
+  role: "Chairman, Cloud Technologies",
   title: "Innovate. Integrate. Protect.",
-  message: `Welcome to Cloud Technologies Limited. As a forward-looking IT solutions provider, we are committed to delivering intelligent, secure, and scalable technologies that empower organizations to thrive in a rapidly evolving digital world.
+  message: `Welcome to Cloud Technologies. As a forward-looking IT solutions provider, we are committed to delivering intelligent, secure, and scalable technologies that empower organizations to thrive in a rapidly evolving digital world.
 
 We believe that the true strength of our organization lies in our people. When individuals continuously enhance their skills and knowledge, the company grows alongside them. Growth is a shared journey— driven by learning, adaptability, and dedication.
 
 I encourage every member of our team to learn more, read more, and work with honesty and discipline. Integrity in thinking and action is essential for long-term success. In today's dynamic environment, versatility is a key strength that enables innovation and excellence.
 
-At Cloud Technologies Limited, we are building a culture of excellence, accountability, and continuous improvement. Together, we strive to create sustainable value for our clients, our people, and the future.`,
+At Cloud Technologies, we are building a culture of excellence, accountability, and continuous improvement. Together, we strive to create sustainable value for our clients, our people, and the future.`,
   photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop"
 };
 
 const defaultMDConfig: MDConfig = {
   name: "Mr. Rejve Hasan",
-  role: "Managing Director, Cloud Technologies Limited",
+  role: "Managing Director, Cloud Technologies",
   title: "Driving Excellence. Delivering Value.",
-  message: `Welcome to Cloud Technologies Limited. Passion for technology and dedication to client success drive our daily operations.
+  message: `Welcome to Cloud Technologies. Passion for technology and dedication to client success drive our daily operations.
 
 As Managing Director, I am committed to fostering an environment where innovation thrives and our team works collaboratively to turn complex challenges into seamless technological solutions.
 
@@ -581,13 +599,13 @@ const defaultTeamMembers: TeamMemberConfig[] = [
   {
     name: "Ziaur Rahman Zia",
     role: "Chairman",
-    description: "Mr. Zia, a visionary entrepreneur and a qualified Chartered Accountant, is the Chairman and a Sponsor Director of Cloud Technologies Limited. He founded the company in 2019 to provide cutting-edge IT solutions and support to clients.",
+    description: "Mr. Zia, a visionary entrepreneur and a qualified Chartered Accountant, is the Chairman and a Sponsor Director of Cloud Technologies. He founded the company in 2019 to provide cutting-edge IT solutions and support to clients.",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop",
   },
   {
     name: "Mr. Rejve Hasan",
     role: "Managing Director",
-    description: "Mr. Rejve is a Sponsor Director of Cloud Technologies Limited with over 13 years of extensive experience in communication, safety, and automation. He has wide-ranging expertise in technology solutions, security surveillance, public address, and conference systems.",
+    description: "Mr. Rejve is a Sponsor Director of Cloud Technologies with over 13 years of extensive experience in communication, safety, and automation. He has wide-ranging expertise in technology solutions, security surveillance, public address, and conference systems.",
     image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=300&auto=format&fit=crop",
   },
   {
@@ -635,7 +653,7 @@ const defaultHeroSlides: HeroSlide[] = [
 const defaultTestimonials: TestimonialItem[] = [
   {
     id: "testi-1",
-    text: "Cloud Technologies Limited delivered an absolute state-of-the-art IPTV and server infrastructure layout for our banking halls. Their extreme dedication and after-sales customer support are highly praiseworthy in Bangladesh's tech sector.",
+    text: "Cloud Technologies delivered an absolute state-of-the-art IPTV and server infrastructure layout for our banking halls. Their extreme dedication and after-sales customer support are highly praiseworthy in Bangladesh's tech sector.",
     author: "Farhan Tanvir",
     role: "Infrastructure Lead, Citizens Bank PLC",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop",
@@ -689,8 +707,8 @@ const defaultNews: NewsItem[] = [
     category: "National Event",
     image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=600&auto=format&fit=crop",
     isCustomGraphic: true,
-    summary: "আন্তর্জাতিক মাতৃভাষা দিবসে ক্লাউড টেকনোলজিস লিমিটেডের পক্ষ থেকে কেন্দ্রীয় শহীদ মিনারে ভাষা শহীদদের প্রতি গভীর শ্রদ্ধা জ্ঞাপন করে পুষ্পস্তবক অর্পণ করা হয়।",
-    description: "মহান শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা উপলক্ষে ক্লাউড টেকনোলজিস লিমিটেড (Cloud Technologies Limited) এর সকল স্তরের কর্মকর্তা ও কর্মচারীবৃন্দ কেন্দ্রীয় শহীদ মিনারে ভাষা শহীদদের স্মৃতির প্রতি গভীর শ্রদ্ধা নিবেদন করেন। এ সময় কোম্পানির ঊর্ধ্বতন নেতৃবৃন্দ শহীদদের বেদীতে পুষ্পস্তবক অর্পণ করে কিছুক্ষণ নিরবতা পালন করেন। মাতৃভাষার অধিকার ও আত্মত্যাগের চেতনাকে বুকে ধারণ করে সামনের দিকে এগিয়ে যাওয়ার অঙ্গীকার পুনর্ব্যক্ত করে এই মহান অনুষ্ঠানটি সম্পন্ন করা হয়।",
+    summary: "আন্তর্জাতিক মাতৃভাষা দিবসে ক্লাউড টেকনোলজিসের পক্ষ থেকে কেন্দ্রীয় শহীদ মিনারে ভাষা শহীদদের প্রতি গভীর শ্রদ্ধা জ্ঞাপন করে পুষ্পস্তবক অর্পণ করা হয়।",
+    description: "মহান শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা উপলক্ষে ক্লাউড টেকনোলজিস (Cloud Technologies) এর সকল স্তরের কর্মকর্তা ও কর্মচারীবৃন্দ কেন্দ্রীয় শহীদ মিনারে ভাষা শহীদদের স্মৃতির প্রতি গভীর শ্রদ্ধা নিবেদন করেন। এ সময় কোম্পানির ঊর্ধ্বতন নেতৃবৃন্দ শহীদদের বেদীতে পুষ্পস্তবক অর্পণ করে কিছুক্ষণ নিরবতা পালন করেন। মাতৃভাষার অধিকার ও আত্মত্যাগের চেতনাকে বুকে ধারণ করে সামনের দিকে এগিয়ে যাওয়ার অঙ্গীকার পুনর্ব্যক্ত করে এই মহান অনুষ্ঠানটি সম্পন্ন করা হয়।",
   },
   {
     id: "glorious-martyrs",
@@ -810,7 +828,7 @@ const defaultPhotos: PhotoItem[] = [
 const defaultVideos: VideoItem[] = [
   {
     id: 1,
-    title: "Cloud Technologies Limited: Ultimate Corporate Overview",
+    title: "Cloud Technologies: Ultimate Corporate Overview",
     category: "overview",
     categoryLabel: "Company Overview",
     duration: "4:25",
@@ -879,26 +897,53 @@ const defaultInquiries: InquiryItem[] = [
 // Helper wrapper for local storage
 const isClient = typeof window !== "undefined";
 
+// Global window-level fallback in-memory cache to guarantee perfect navigation persistence 
+// of updates inside sandboxed iframes even if the browser blocks standard localStorage
+const memoryCache: Record<string, any> = {};
+
+if (isClient) {
+  try {
+    (window as any).__CENTRAL_DATA_STORE_CACHE__ = memoryCache;
+  } catch (e) {}
+}
+
 function getStored<T>(key: string, defaultValue: T): T {
   if (!isClient) return defaultValue;
+  
+  // Try retrieving from internal session memory cache first for instant cross-tab stability
+  if (memoryCache[key] !== undefined) {
+    return memoryCache[key];
+  }
+  
   try {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
+    if (item) {
+      const parsed = JSON.parse(item);
+      memoryCache[key] = parsed;
+      return parsed;
+    }
   } catch (error) {
-    console.error("Error reading localStorage key", key, error);
-    return defaultValue;
+    console.warn("Storage warning: LocalStorage holds sandbox iframe blocks, using session-level state as fallback.", error);
   }
+  
+  // Fall back to the configured fallback default config
+  memoryCache[key] = defaultValue;
+  return defaultValue;
 }
 
 function setStored<T>(key: string, value: T): void {
+  // Always update our persistent session memory cache first
+  memoryCache[key] = value;
+  
   if (!isClient) return;
   try {
     localStorage.setItem(key, JSON.stringify(value));
-    // Dispatch a custom event to notify other components in the same window
-    window.dispatchEvent(new Event("datastore-update"));
   } catch (error) {
-    console.error("Error writing localStorage key", key, error);
+    console.warn("Storage warning: LocalStorage writes block, saved to session fallback memory instead.", error);
   }
+  
+  // Dispatch a custom event to notify other components in the same window
+  window.dispatchEvent(new Event("datastore-update"));
 }
 
 export const dataStore = {
@@ -1018,6 +1063,18 @@ export const dataStore = {
     window.dispatchEvent(new Event("datastore-update"));
   },
 
+  getMySQLConfig: (): MySQLConfig => {
+    const stored = getStored("ctl_mysql_config", defaultMySQLConfig);
+    return {
+      ...defaultMySQLConfig,
+      ...stored
+    };
+  },
+  saveMySQLConfig: (config: MySQLConfig) => {
+    setStored("ctl_mysql_config", config);
+    window.dispatchEvent(new Event("datastore-update"));
+  },
+
   getSiteMetadata: (): SiteMetadata => {
     const stored = getStored("ctl_site_metadata", defaultSiteMetadata);
     return {
@@ -1032,6 +1089,161 @@ export const dataStore = {
   },
   saveSiteMetadata: (config: SiteMetadata) => setStored("ctl_site_metadata", config),
 
+  syncWithMySQL: async (pullForce = false): Promise<{ success: boolean; message: string }> => {
+    const config = dataStore.getMySQLConfig();
+    if (!config.apiEndpointUrl) {
+      return { success: false, message: "MySQL Bridge API Endpoint URL is not configured." };
+    }
+    
+    try {
+      const response = await fetch(config.apiEndpointUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "pull_all" })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+      }
+      
+      const resData = await response.json();
+      if (resData.status === "success" && resData.data) {
+        const payload = resData.data;
+        const keys = Object.keys(payload);
+        
+        let updatedCount = 0;
+        keys.forEach((key) => {
+          if (payload[key] !== undefined) {
+            setStored(key, payload[key]);
+            updatedCount++;
+          }
+        });
+        
+        // Dispatch custom event to refresh UI
+        window.dispatchEvent(new Event("datastore-update"));
+        return { 
+          success: true, 
+          message: `Successfully synchronized ${updatedCount} modules from live MySQL database!` 
+        };
+      } else {
+        return { 
+          success: false, 
+          message: resData.message || "Failed pulling data. MySQL tables are empty or uninitialized." 
+        };
+      }
+    } catch (err: any) {
+      console.warn("MySQL sync warning: ", err);
+      return { 
+        success: false, 
+        message: `Database sync failed: ${err.message || 'Network request timeout'}. Standard LocalStorage fallback active.` 
+      };
+    }
+  },
+
+  pushToMySQL: async (): Promise<{ success: boolean; message: string }> => {
+    const config = dataStore.getMySQLConfig();
+    if (!config.apiEndpointUrl) {
+      return { success: false, message: "MySQL Bridge API Endpoint URL is not configured." };
+    }
+
+    // Compile everything to push
+    const bundle: Record<string, any> = {
+      ctl_news: dataStore.getNews(),
+      ctl_running_projects: dataStore.getRunningProjects(),
+      ctl_completed_projects: dataStore.getCompletedProjects(),
+      ctl_photos: dataStore.getPhotos(),
+      ctl_videos: dataStore.getVideos(),
+      ctl_solutions: dataStore.getSolutions(),
+      ctl_clients: dataStore.getClients(),
+      ctl_brands: dataStore.getBrands(),
+      ctl_testimonials: dataStore.getTestimonials(),
+      ctl_display_stats: dataStore.getDisplayStats(),
+      ctl_team_members: dataStore.getTeamMembers(),
+      ctl_reasons: dataStore.getWhyChooseReasons(),
+      ctl_hero_slides: dataStore.getHeroSlides(),
+      ctl_contact_info: dataStore.getContactInfo(),
+      ctl_header_config: dataStore.getHeaderConfig(),
+      ctl_footer_config: dataStore.getFooterConfig(),
+      ctl_site_metadata: dataStore.getSiteMetadata()
+    };
+
+    try {
+      const response = await fetch(config.apiEndpointUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          action: "push_all", 
+          data: bundle,
+          dbConfig: {
+            host: config.dbHost,
+            name: config.dbName,
+            user: config.dbUser,
+            pass: config.dbPass
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+      }
+
+      const resData = await response.json();
+      if (resData.status === "success") {
+        return { 
+          success: true, 
+          message: "Successfully synchronized and populated all local entries to your MySQL database server tables!" 
+        };
+      } else {
+        return { 
+          success: false, 
+          message: resData.message || "MySQL server rejected the push action." 
+        };
+      }
+    } catch (err: any) {
+      console.error("MySQL push error: ", err);
+      return { 
+        success: false, 
+        message: `Database push failed: ${err.message || 'Network error'}. Verify SQL configurations and bridge file uploads.` 
+      };
+    }
+  },
+
+  testMySQLConnection: async (): Promise<{ success: boolean; message: string }> => {
+    const config = dataStore.getMySQLConfig();
+    if (!config.apiEndpointUrl) {
+      return { success: false, message: "MySQL Bridge API Endpoint URL is not configured." };
+    }
+
+    try {
+      const response = await fetch(config.apiEndpointUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          action: "test",
+          dbConfig: {
+            host: config.dbHost,
+            name: config.dbName,
+            user: config.dbUser,
+            pass: config.dbPass
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const resData = await response.json();
+      if (resData.status === "success") {
+        return { success: true, message: "Connection check passed successfully! MySQL database is responsive." };
+      } else {
+        return { success: false, message: resData.message || "Database connection test failed." };
+      }
+    } catch (err: any) {
+      return { success: false, message: `Bridge test failed: ${err.message || 'Server offline'}. Make sure db_bridge.php is uploaded to public_html/` };
+    }
+  },
+
   addInquiry: (inquiry: Omit<InquiryItem, "id" | "createdAt" | "status">) => {
     const current = dataStore.getInquiries();
     const newInquiry: InquiryItem = {
@@ -1041,6 +1253,20 @@ export const dataStore = {
       status: "new"
     };
     dataStore.saveInquiries([newInquiry, ...current]);
+    
+    // Background post to live MySQL Bridge if enabled
+    const mysqlConfig = dataStore.getMySQLConfig();
+    if (mysqlConfig.activeDataSource === "mysql_bridge" && mysqlConfig.apiEndpointUrl) {
+      fetch(mysqlConfig.apiEndpointUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save_inquiry",
+          inquiry: newInquiry
+        })
+      }).catch((e) => console.warn("Failed background inquiry save to MySQL:", e));
+    }
+    
     return newInquiry;
   }
 };

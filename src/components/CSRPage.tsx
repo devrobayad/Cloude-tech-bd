@@ -61,7 +61,7 @@ export default function CSRPage() {
           <h2 className="text-3xl font-extrabold text-[#1e1b4b] mb-4">Our Commitment to Society</h2>
           <div className="w-16 h-1 bg-indigo-600 mx-auto mb-6 rounded-full" />
           <p className="text-slate-600 text-base md:text-lg leading-relaxed font-medium">
-            At <span className="font-bold text-slate-900">Cloud Technologies Limited</span>, we believe that real corporate leadership goes beyond commercial services. True craftsmanship is defined by how we give back. Through our CSR pillars, we strive to build equal tech opportunities, secure clean environments, and provide instant disaster relief across the nation.
+            At <span className="font-bold text-slate-900">Cloud Technologies</span>, we believe that real corporate leadership goes beyond commercial services. True craftsmanship is defined by how we give back. Through our CSR pillars, we strive to build equal tech opportunities, secure clean environments, and provide instant disaster relief across the nation.
           </p>
         </div>
 

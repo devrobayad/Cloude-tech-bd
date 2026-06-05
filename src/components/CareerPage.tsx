@@ -102,7 +102,7 @@ export default function CareerPage() {
             </h2>
             <div className="prose prose-slate text-slate-600 text-sm leading-relaxed mb-6 space-y-4">
               <p>
-                Inspired by the vision of our leadership, we believe that the true foundation of our mutual success rests upon the steady, proactive development of our human talent. When integers in our team learn, grow, and upgrade daily, <span className="font-semibold text-slate-800">Cloud Technologies Limited</span> blooms alongside them.
+                Inspired by the vision of our leadership, we believe that the true foundation of our mutual success rests upon the steady, proactive development of our human talent. When integers in our team learn, grow, and upgrade daily, <span className="font-semibold text-slate-800">Cloud Technologies</span> blooms alongside them.
               </p>
               <p>
                 We highly value **honesty, discipline, versatile engineering skills, and a rigorous commitment to corporate quality**. Whether configuring a local enterprise datacentre, installing sound platforms, or setting dynamic AI CCTV systems, our employees work as a unified force of modern innovators.

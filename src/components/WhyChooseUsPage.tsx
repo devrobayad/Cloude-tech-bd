@@ -24,7 +24,7 @@ export default function WhyChooseUsPage() {
 
       <div className="max-w-7xl mx-auto px-4 md:px-8">
 
-        <h2 className="text-3xl font-bold text-[#1e1b4b] mb-12">Why Choose Cloud Technologies Limited?</h2>
+        <h2 className="text-3xl font-bold text-[#1e1b4b] mb-12">Why Choose Cloud Technologies?</h2>
 
         <div className="grid md:grid-cols-2 gap-8">
            {reasons.map((item, i) => {
