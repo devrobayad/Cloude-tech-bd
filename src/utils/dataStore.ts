@@ -313,13 +313,42 @@ const defaultEmailIntegrationConfig: EmailIntegrationConfig = {
   activeMethod: "php_mail"
 };
 
+const getAutoBridgeUrl = (): string => {
+  if (typeof window !== "undefined" && window.location) {
+    const hostname = window.location.hostname;
+    if (
+      hostname !== "localhost" && 
+      hostname !== "127.0.0.1" && 
+      !hostname.includes("run.app")
+    ) {
+      const pathParts = window.location.pathname.split("/");
+      pathParts.pop(); // remove index.html or trailing segment
+      const dir = pathParts.join("/");
+      return `${window.location.protocol}//${window.location.host}${dir ? dir : ""}/db_bridge.php`;
+    }
+  }
+  return "https://www.cloudtechnologies.com.bd/db_bridge.php";
+};
+
+const isProductionDepl = (): boolean => {
+  if (typeof window !== "undefined" && window.location) {
+    const hostname = window.location.hostname;
+    return (
+      hostname !== "localhost" && 
+      hostname !== "127.0.0.1" && 
+      !hostname.includes("run.app")
+    );
+  }
+  return false;
+};
+
 const defaultMySQLConfig: MySQLConfig = {
   dbHost: "localhost",
   dbName: "ctl_db",
   dbUser: "ctl_user",
   dbPass: "",
-  apiEndpointUrl: "https://www.cloudtechnologies.com.bd/db_bridge.php",
-  activeDataSource: "local_storage"
+  apiEndpointUrl: getAutoBridgeUrl(),
+  activeDataSource: isProductionDepl() ? "mysql_bridge" : "local_storage"
 };
 
 const defaultClients: DBClient[] = [
