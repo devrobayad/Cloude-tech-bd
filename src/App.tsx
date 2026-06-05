@@ -62,46 +62,20 @@ export default function App() {
     return () => window.removeEventListener("datastore-update", updateMetadata);
   }, []);
 
-  // Background MySQL auto-synchronization & cPanel DB Auto-Activation for Visitors
+  // Background MySQL auto-synchronization for Visitors upon mounting
   useEffect(() => {
-    const initSync = async () => {
-      let config = dataStore.getMySQLConfig();
-      const hostname = typeof window !== "undefined" ? window.location.hostname : "";
-      const isDev = hostname === "localhost" || hostname === "127.0.0.1" || hostname.includes("run.app");
-
-      // On production cPanel domains, if activeDataSource is still local_storage on a clean browser,
-      // attempt a fast silent check to auto-detect if the live MySQL DB is set up & active
-      if (!isDev && config.activeDataSource === "local_storage") {
-        try {
-          const testRes = await dataStore.testMySQLConnection();
-          if (testRes.success) {
-            console.log("Auto-detected fully configured MySQL Database. Promoting fallback pipeline to live.");
-            const updated = {
-              ...config,
-              activeDataSource: "mysql_bridge" as const
-            };
-            dataStore.saveMySQLConfig(updated);
-            config = updated;
-          }
-        } catch (e) {
-          console.warn("Silent bridge connectivity pre-check skipped:", e);
+    const config = dataStore.getMySQLConfig();
+    if (config.activeDataSource === "mysql_bridge") {
+      dataStore.syncWithMySQL().then((res) => {
+        if (res.success) {
+          console.log("Synchronized active dataset from cPanel MySQL successfully.");
+        } else {
+          console.warn("Could not pull from cPanel database, using local cache backup:", res.message);
         }
-      }
-
-      if (config.activeDataSource === "mysql_bridge") {
-        dataStore.syncWithMySQL().then((res) => {
-          if (res.success) {
-            console.log("Synchronized active dataset from cPanel MySQL successfully.");
-          } else {
-            console.warn("Could not pull from cPanel database, using local cache backup:", res.message);
-          }
-        }).catch((e) => {
-          console.warn("Automatic backup MySQL sync skipped or connection unestablished.", e);
-        });
-      }
-    };
-
-    initSync();
+      }).catch((e) => {
+        console.warn("Automatic backup MySQL sync skipped or connection unestablished.", e);
+      });
+    }
   }, []);
 
   useEffect(() => {

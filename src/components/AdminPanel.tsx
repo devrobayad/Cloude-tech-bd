@@ -7624,6 +7624,15 @@ if (\$_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 \$db_user = "${mysqlConfig.dbUser || "ctl_user"}";
 \$db_pass = "${mysqlConfig.dbPass || ""}";
 
+// Load securely auto-saved database configuration if present on server
+if (file_exists(__DIR__ . '/db_config_secured.php')) {
+    include __DIR__ . '/db_config_secured.php';
+    if (isset(\$saved_host)) \$db_host = \$saved_host;
+    if (isset(\$saved_name)) \$db_name = \$saved_name;
+    if (isset(\$saved_user)) \$db_user = \$saved_user;
+    if (isset(\$saved_pass)) \$db_pass = \$saved_pass;
+}
+
 \$inputJSON = file_get_contents('php://input');
 \$input = json_decode(\$inputJSON, true);
 
@@ -7645,6 +7654,17 @@ try {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
+    
+    // Securely cache successful connections locally on cPanel server for other visitor browsers
+    if (isset(\$input['dbConfig'])) {
+        \$configCode = "<?php\\n" .
+                      "// Auto-saved by DB Bridge. Do not touch or expose.\\n" .
+                      "\\\\$saved_host = " . var_export(\$db_host, true) . ";\\n" .
+                      "\\\\$saved_name = " . var_export(\$db_name, true) . ";\\n" .
+                      "\\\\$saved_user = " . var_export(\$db_user, true) . ";\\n" .
+                      "\\\\$saved_pass = " . var_export(\$db_pass, true) . ";\\n";
+        @file_put_contents(__DIR__ . '/db_config_secured.php', \$configCode);
+    }
 } catch (PDOException \$e) {
     echo json_encode(["status" => "error", "message" => "Database Connection Failed: " . \$e->getMessage()]);
     exit;
