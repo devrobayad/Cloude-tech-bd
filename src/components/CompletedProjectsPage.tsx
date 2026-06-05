@@ -29,7 +29,7 @@ export default function CompletedProjectsPage() {
               className="group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100 transition-all duration-300 cursor-pointer"
             >
               <div className="h-48 w-full overflow-hidden">
-                <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={project.image} alt={project.title} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <div className="p-6">
                 <div className="text-emerald-600 text-xs font-bold uppercase mb-2">{project.category}</div>
@@ -53,7 +53,7 @@ export default function CompletedProjectsPage() {
               <button onClick={() => setSelectedProject(null)} className="p-2 hover:bg-white/20 rounded-full"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6">
-              <img src={selectedProject.image} alt={selectedProject.title} className="w-full h-64 object-cover rounded-2xl mb-6" />
+              <img src={selectedProject.image} alt={selectedProject.title} referrerPolicy="no-referrer" className="w-full h-64 object-cover rounded-2xl mb-6" />
               <div className="flex items-center gap-2 text-slate-500 text-sm mb-4">
                 <Calendar className="w-4 h-4" /> {selectedProject.date}
               </div>

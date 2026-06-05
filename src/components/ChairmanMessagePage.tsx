@@ -27,6 +27,7 @@ export default function ChairmanMessagePage() {
                 src={chairman.photo || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop"} 
                 alt={chairman.name} 
                 className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
             </div>
             <p className="font-bold text-slate-900 text-lg">{chairman.name}</p>

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { PhoneCall, ArrowRight, Users } from "lucide-react";
 import { dataStore } from "../utils/dataStore";
 
-const INSTALLER_IMAGE = "/src/assets/images/security_mounting_1780518506432.png";
-const ISOMETRIC_IMAGE = "/src/assets/images/network_isometric_1780518523273.png";
+import INSTALLER_IMAGE from "../assets/images/security_mounting_1780518506432.png";
+import ISOMETRIC_IMAGE from "../assets/images/network_isometric_1780518523273.png";
 
 export default function About() {
   const [contact, setContact] = useState(() => dataStore.getContactInfo());

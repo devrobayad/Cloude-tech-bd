@@ -74,6 +74,7 @@ export default function CSRPage() {
                   src={item.image} 
                   alt={item.title} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  referrerPolicy="no-referrer"
                 />
                 <div className="absolute top-4 left-4 bg-indigo-600 text-white p-3 rounded-xl shadow-lg">
                   <item.icon className="w-5 h-5" />

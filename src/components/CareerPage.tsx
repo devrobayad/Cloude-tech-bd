@@ -120,6 +120,7 @@ export default function CareerPage() {
               src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=1200&auto=format&fit=crop" 
               alt="Team collaboration" 
               className="w-full h-full object-cover" 
+              referrerPolicy="no-referrer"
             />
           </div>
         </div>

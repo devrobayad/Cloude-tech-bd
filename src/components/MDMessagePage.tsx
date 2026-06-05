@@ -27,6 +27,7 @@ export default function MDMessagePage() {
                 src={md.photo || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"} 
                 alt={md.name} 
                 className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
             </div>
             <p className="font-bold text-slate-900 text-lg">{md.name}</p>

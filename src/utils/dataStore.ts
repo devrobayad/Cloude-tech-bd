@@ -4,6 +4,7 @@
  */
 
 import { SerializableSolution, defaultSolutions } from "./defaultSolutions";
+import HERO_COMMAND_CENTER_IMAGE from "../assets/images/hero_command_center_1780518486421.png";
 export type { SerializableSolution };
 
 // Centralized LocalStorage Data Store for RS Technologies Limited / Cloud Technologies website
@@ -626,7 +627,7 @@ const defaultWhyChooseReasons: WhyChooseReason[] = [
 const defaultHeroSlides: HeroSlide[] = [
   {
     id: "slide-1",
-    image: "/src/assets/images/hero_command_center_1780518486421.png",
+    image: HERO_COMMAND_CENTER_IMAGE,
     tag: "Enterprise System Integrator",
     title: "Intelligence Beyond Security",
     description: "Empowering Bangladesh's largest institutions with next-generation mission-critical security ops, CCTV, AI intelligence, and redundant industrial fiber networking solutions.",
@@ -931,6 +932,8 @@ function getStored<T>(key: string, defaultValue: T): T {
   return defaultValue;
 }
 
+let isSyncingFromMySQL = false;
+
 function setStored<T>(key: string, value: T): void {
   // Always update our persistent session memory cache first
   memoryCache[key] = value;
@@ -944,6 +947,28 @@ function setStored<T>(key: string, value: T): void {
   
   // Dispatch a custom event to notify other components in the same window
   window.dispatchEvent(new Event("datastore-update"));
+
+  // Sinks key-value entries automatically inside live MySQL database on cPanel if enabled
+  if (
+    !isSyncingFromMySQL && 
+    key !== "ctl_mysql_config" && 
+    key !== "ctl_inquiries" && 
+    key !== "ctl_admin_auth_config" &&
+    key !== "ctl_email_integration_config" &&
+    !key.startsWith("session_")
+  ) {
+    setTimeout(async () => {
+      try {
+        const mysqlConfig = dataStore.getMySQLConfig();
+        if (mysqlConfig.activeDataSource === "mysql_bridge" && mysqlConfig.apiEndpointUrl) {
+          console.log("Auto-syncing modified configuration to cPanel MySQL database:", key);
+          await dataStore.pushToMySQL();
+        }
+      } catch (err) {
+        console.warn("Auto-sync background backup database write warning:", err);
+      }
+    }, 150);
+  }
 }
 
 export const dataStore = {
@@ -1095,6 +1120,7 @@ export const dataStore = {
       return { success: false, message: "MySQL Bridge API Endpoint URL is not configured." };
     }
     
+    isSyncingFromMySQL = true;
     try {
       const response = await fetch(config.apiEndpointUrl, {
         method: "POST",
@@ -1121,17 +1147,20 @@ export const dataStore = {
         
         // Dispatch custom event to refresh UI
         window.dispatchEvent(new Event("datastore-update"));
+        isSyncingFromMySQL = false;
         return { 
           success: true, 
           message: `Successfully synchronized ${updatedCount} modules from live MySQL database!` 
         };
       } else {
+        isSyncingFromMySQL = false;
         return { 
           success: false, 
           message: resData.message || "Failed pulling data. MySQL tables are empty or uninitialized." 
         };
       }
     } catch (err: any) {
+      isSyncingFromMySQL = false;
       console.warn("MySQL sync warning: ", err);
       return { 
         success: false, 

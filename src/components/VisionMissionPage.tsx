@@ -21,7 +21,7 @@ export default function VisionMissionPage() {
       <PageBanner title="Vision & Mission" />
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="mb-12 rounded-2xl overflow-hidden shadow-lg border border-slate-100">
-           <img src={vm.image || "https://images.unsplash.com/photo-1549692520-acc666993f0e?q=80&w=1200&auto=format&fit=crop"} alt="Vision and Mission" className="w-full h-80 object-cover" />
+           <img src={vm.image || "https://images.unsplash.com/photo-1549692520-acc666993f0e?q=80&w=1200&auto=format&fit=crop"} alt="Vision and Mission" className="w-full h-80 object-cover" referrerPolicy="no-referrer" />
         </div>
 
         <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed space-y-10">

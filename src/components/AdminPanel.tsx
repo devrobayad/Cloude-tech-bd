@@ -44,6 +44,10 @@ export default function AdminPanel() {
   const [mysqlSyncErr, setMysqlSyncErr] = useState("");
   const [mysqlTesting, setMysqlTesting] = useState(false);
 
+  // Live MySQL Dynamic Ping Status States
+  const [dbPingStatus, setDbPingStatus] = useState<"checking" | "connected" | "disconnected" | "local_storage" | "unconfigured">("checking");
+  const [dbPingError, setDbPingError] = useState("");
+
   // Header & Footer Editor State
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(() => dataStore.getHeaderConfig());
   const [footerConfig, setFooterConfig] = useState<FooterConfig>(() => dataStore.getFooterConfig());
@@ -1176,6 +1180,63 @@ export default function AdminPanel() {
     }
   };
 
+  // Reactively ping the MySQL database connection to check active connectivity
+  useEffect(() => {
+    let active = true;
+    const checkStatus = async () => {
+      const config = dataStore.getMySQLConfig();
+      if (config.activeDataSource === "local_storage") {
+        if (active) {
+          setDbPingStatus("local_storage");
+          setDbPingError("");
+        }
+        return;
+      }
+
+      if (!config.apiEndpointUrl) {
+        if (active) {
+          setDbPingStatus("unconfigured");
+          setDbPingError("MySQL Bridge PHP script URL is not configured yet.");
+        }
+        return;
+      }
+
+      if (active) {
+        setDbPingStatus("checking");
+      }
+
+      try {
+        const res = await dataStore.testMySQLConnection();
+        if (active) {
+          if (res.success) {
+            setDbPingStatus("connected");
+            setDbPingError("");
+          } else {
+            setDbPingStatus("disconnected");
+            setDbPingError(res.message);
+          }
+        }
+      } catch (e: any) {
+        if (active) {
+          setDbPingStatus("disconnected");
+          setDbPingError(e.message || "Could not reach the database bridge file.");
+        }
+      }
+    };
+
+    checkStatus();
+
+    const handleUpdate = () => {
+      checkStatus();
+    };
+
+    window.addEventListener("datastore-update", handleUpdate);
+    return () => {
+      active = false;
+      window.removeEventListener("datastore-update", handleUpdate);
+    };
+  }, [mysqlConfig.activeDataSource, mysqlConfig.apiEndpointUrl]);
+
   useEffect(() => {
     loadAllData();
     window.addEventListener("datastore-update", loadAllData);
@@ -1525,7 +1586,43 @@ export default function AdminPanel() {
           </div>
           <div>
             <h1 className="text-lg md:text-xl font-black tracking-wide font-display">ADMINISTRATOR CONTROL DESK</h1>
-            <p className="text-indigo-300 text-xs font-semibold uppercase tracking-wider">Live Content Management & Leads Engine</p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-wider">
+              <span className="text-indigo-300">Live Content Management & Leads Engine</span>
+              <span className="text-indigo-500">•</span>
+              <div className="flex items-center gap-1.5 select-none font-sans lowercase">
+                <span className="text-[10px] text-slate-400 capitalize">cPanel Link:</span>
+                {dbPingStatus === "checking" && (
+                  <span className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold border border-amber-500/20 capitalize">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    Checking...
+                  </span>
+                )}
+                {dbPingStatus === "connected" && (
+                  <span className="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-emerald-500/20 capitalize">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Connected
+                  </span>
+                )}
+                {dbPingStatus === "disconnected" && (
+                  <span className="inline-flex items-center gap-1 bg-rose-500/15 text-rose-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-rose-500/20 cursor-pointer capitalize" title={dbPingError} onClick={() => setActiveTab("mysql-settings")}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping" />
+                    Offline fallback
+                  </span>
+                )}
+                {dbPingStatus === "unconfigured" && (
+                  <span className="inline-flex items-center gap-1 bg-rose-500/15 text-rose-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-rose-500/20 cursor-pointer capitalize" title="Click to open settings" onClick={() => setActiveTab("mysql-settings")}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                    Unconfigured
+                  </span>
+                )}
+                {dbPingStatus === "local_storage" && (
+                  <span className="inline-flex items-center gap-1 bg-indigo-500/15 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full font-bold border border-indigo-500/20 capitalize">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                    Web LocalStorage
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -7115,6 +7212,90 @@ if (send_mail_routing(\$config, \$subject, \$htmlMessage, \$fullName, \$corporat
                     }`}>
                       {mysqlConfig.activeDataSource === "mysql_bridge" ? "Live MySQL Database" : "Web LocalStorage"}
                     </span>
+                  </div>
+                </div>
+
+                {/* Connection Status and Bengali Guidance Card */}
+                <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 shadow-sm text-left font-sans">
+                  <h3 className="font-extrabold text-slate-850 text-sm flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-indigo-600" />
+                    <span>Database Diagnostic & Guidance (ডাটাবেজ কানেকশন গাইড)</span>
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[11px] leading-relaxed">
+                    {/* Status overview */}
+                    <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/60 flex flex-col justify-between space-y-3">
+                      <div className="space-y-2">
+                        <span className="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Connection status</span>
+                        {dbPingStatus === "checking" && (
+                          <div className="flex items-center gap-2 text-amber-600 text-xs font-black">
+                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                            কানেকশন চেক করা হচ্ছে... (Checking Connection...)
+                          </div>
+                        )}
+                        {dbPingStatus === "connected" && (
+                          <div className="flex items-center gap-2 text-emerald-600 text-xs font-black">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                            সফলভাবে সংযুক্ত! (Successfully Connected to MySQL)
+                          </div>
+                        )}
+                        {dbPingStatus === "disconnected" && (
+                          <div className="flex items-center gap-2 text-rose-600 text-xs font-black animate-pulse">
+                            <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                            সংযুক্ত নয় / কানেক্ট হয়নি (Disconnected / Offline)
+                          </div>
+                        )}
+                        {dbPingStatus === "unconfigured" && (
+                          <div className="flex items-center gap-2 text-rose-500 text-xs font-black">
+                            <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                            কনফিগার করা হয়নি (Bridge Script Unconfigured)
+                          </div>
+                        )}
+                        {dbPingStatus === "local_storage" && (
+                          <div className="flex items-center gap-2 text-slate-600 text-xs font-black">
+                            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+                            লোকাল স্টোরেজ মোড সচল (Using LocalStorage Only)
+                          </div>
+                        )}
+                        
+                        {dbPingError && (
+                          <p className="bg-red-50 text-red-650 p-2.5 rounded-xl border border-red-100 font-mono text-[10px] leading-relaxed break-all mt-2">
+                            Reason: {dbPingError}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div className="pt-3 border-t border-slate-200 text-[10px] text-slate-500 space-y-1.5 leading-relaxed">
+                        <p>
+                          <strong>গুরুত্বপূর্ণ তথ্য:</strong> আপনি যখন "লোকাল স্টোরেজ" সিলেক্ট করে কন্টেন্ট পরিবর্তন করেন, তা শুধুমাত্র আপনার এই ব্রাউজারে সেভ থাকে। অন্য কোন ডিভাইস বা সাধারণ ভিজিটররা তা দেখতে পায় না।
+                        </p>
+                        <p className="text-indigo-600 font-extrabold">
+                          আপনার ডাটাবেজ কানেক্ট করা হয়ে গেলে Active Data Pipeline Source হিসেবে অবশ্যই "MySQL Synced Database Engine" সিলেক্ট করে সেভ করুন।
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Step-by-step Setup Bengali Guidance */}
+                    <div className="space-y-2 text-slate-600">
+                      <span className="text-[10px] text-slate-400 uppercase font-black tracking-wider block">cPanel Setup steps (ধাপসমূহ):</span>
+                      <ul className="list-decimal pl-4 space-y-1 leading-relaxed text-[11px] font-sans">
+                        <li>
+                          <strong>ডাটাবেজ তৈরি করুন:</strong> cPanel-এর MySQL Database Wizard থেকে একটি ডাটাবেজ, ইউজার ও পাসওয়ার্ড তৈরি করুন। ইউজারকে ডাটাবেজের All Privileges দিন।
+                        </li>
+                        <li>
+                          <strong>টেবিল ইম্পোর্ট করুন:</strong> phpMyAdmin এ গিয়ে আপনার তৈরি করা ডাটাবেজে প্রবেশ করুন। html-এর নিচে থাকা <strong>database_schema.sql</strong> ফাইলটি নিয়ে ইম্পোর্ট করুন।
+                        </li>
+                        <li>
+                          <strong>ফাইল আপলোডিং:</strong> নিচে থাকা <strong>db_bridge.php</strong> ফাইলটি ডাউনলোড করে আপনার cPanel এর File Manager এ গিয়ে <strong>public_html/</strong> ডিরেক্টরিতে আপলোড করুন।
+                        </li>
+                        <li>
+                          <strong>URL কনফিগার করুন:</strong> আপনার আপলোড করা ফাইলটির সঠিক URL (যেমন: <code>https://yourdomain.com/db_bridge.php</code>) "Bridge php Script URL" বক্সে দিন এবং "Save MySQL Parameters" বাটনে ক্লিক করুন।
+                        </li>
+                        <li>
+                          <strong>Sync এবং Publish:</strong> কানেকশন ঠিক থাকলে নিচের <strong>Publish (Push DB)</strong> বাটনে ক্লিক করে বর্তমান ডাটা লাইভ ডাটাবেজে সেভ করে দিন। এরপর Active Source হিসেবে <strong>MySQL Synced Database Engine</strong> সিলেক্ট করুন।
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
